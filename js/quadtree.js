@@ -18,15 +18,17 @@ class QTNode
     {
         this.children = [ null, null, null, null ];
 
+        this.coord  = null; // null if it contains children
         this.center = center;
         this.rx     = rx;
         this.ry     = ry;
 
-        this.bodyID = null;
+        this.id = null;
 
-        this.cnt       = 0;
         this.totalMass = 0;
         this.com       = new Point (0, 0);
+
+        this.forceVec = new Vec (0, 0);
     }
 
     addChild(qd)
@@ -82,26 +84,39 @@ class Quadtree
     }
 
     /**
+     * @param {number} m1 The mass of the first body.
+     * @param {number} m2 The mass of the first body.
+     * @param {number} r The distance between the two masses.
+     * @returns The force between to masses a distance r away.
+     */
+    #forceFunc(m1, m2, r) { return 6.6743015e-11 * m1 * m2 / (r * r); }
+
+    /**
      * Recursively adds a body to the quadtree
      * @param {number} x1 The x-coordinate of the body.
      * @param {number} y1 The y-coordinate of the body.
      * @param {number} mass The mass of the body.
      * @param {string} id The HTML ID of the body.
-     * @param {number} node The node to recurse on.
+     * @param {QTNode} node The node to recurse on.
      */
     addBody(x1, y1, mass, id, node)
     {
-        const precnt = node.cnt++;
-        node.com.x   = (precnt * node.com.x + x1) / (node.cnt);
-        node.com.y   = (precnt * node.com.y + y1) / (node.cnt);
+        node.com.x = (node.com.x * node.totalMass + x1 * mass) / (node.totalMass + mass);
+        node.com.y = (node.com.y * node.totalMass + y1 * mass) / (node.totalMass + mass);
 
-        if (node != this.root && node.bodyID == null) {
-            node.bodyID = id;
+        const coord = new Point (x1, y1);
+
+        if (node != this.root && node.id == null) {
+            node.id = id;
             node.totalMass += mass;
+            node.coord = coord;
             return;
         }
 
-        const qd = this.#getQuadrant(node.center, new Point (x1, y1));
+        // erase the coordinate if the node has children
+        node.coord = null;
+
+        const qd = this.#getQuadrant(node.center, coord);
 
         console.log(
             `getQuadrant: center: (${node.center.x}, ${node.center.y}), body: (${x1}, ${y1}) and returned ${qd}.`);

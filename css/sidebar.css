@@ -1,0 +1,49 @@
+:root {
+    --sbcolor: #cccccc;
+    --fontsize: 14px
+}
+
+#sidebar {
+    background-color: var(--sbcolor);
+    width: 25vw;
+    height: 100vh;
+
+    display: block;
+
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+}
+
+#sidebar h1,
+#sidebar h2,
+#sidebar h3,
+#sidebar h4,
+#sidebar h5,
+#sidebar h6 {
+    text-align: center;
+    vertical-align: middle;
+    font-size: 3vw;
+
+    padding-left: 2vw;
+    padding-right: 2vw;
+}
+
+#sidebar p {
+    font-size: var(--fontsize);
+    margin: 20px 2vw;
+}
+
+#sidebar label {
+    display: block;
+    text-align: center;
+    font-size: var(--fontsize);
+}
+
+#sidebar button,
+#sidebar input {
+    display: block;
+    margin: 10px auto;
+    text-align: center;
+}

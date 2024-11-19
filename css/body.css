@@ -1,0 +1,6 @@
+div.body {
+    background-color: white;
+    border-radius: 50%;
+
+    position: absolute;
+}

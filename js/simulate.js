@@ -24,12 +24,15 @@ function _getBodyHTML (sz, x, y)
 const sidebarStyle = window.getComputedStyle(document.getElementById("sidebar"));
 let   XOFFSET      = parseFloat (sidebarStyle.getPropertyValue("width"));
 
-const qt = new Quadtree (XOFFSET, 0, VW, VH);
+const qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 
 function addBody (e)
 {
-    const mass = 20;
-    qt.addBody(e.pageX, e.pageY, mass, "body" + cnt, qt.root);
+    const mass    = 20;
+    let   curbody = qt.addBody(e.pageX, e.pageY, mass, "body" + cnt, qt.root);
+
+    qt.calcForceV(curbody, qt.root, 0.5);
+
     document.body.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
 
     console.log(qt);

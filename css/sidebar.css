@@ -6,14 +6,9 @@
 #sidebar {
     background-color: var(--sbcolor);
     width: 25vw;
-    height: 100vh;
-
+    height: 100%;
     display: block;
-
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
+    position: absolute;
 }
 
 #sidebar h1,

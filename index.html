@@ -3,6 +3,7 @@
 <html lang="en-US">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <title>N-Body Simulation</title>
 
@@ -16,32 +17,35 @@
   </head>
 
   <body>
-    <div id="sidebar">
-      <h1>N-Body Simulation</h1>
-      <p>
-        Click the display to add a body.
-        <br />
-        Click the body to show options to change mass and velocity.
-      </p>
+    <div class="container">
+      <div id="hitbox"></div>
+      <div id="sidebar">
+        <h1>N-Body Simulation</h1>
+        <p>
+          Click the display to add a body.
+          <br />
+          Click the body to show options to change mass and velocity.
+        </p>
 
-      <label for="slider_theta">Accuracy (&theta; value):</label>
-      <label
-        for="slider_theta"
-        id="slider_theta_val"
-        style="font-family: monospace; margin-top: 8px"
-        >NULL</label
-      >
-      <input
-        type="range"
-        min="0"
-        max="3"
-        value="0.5"
-        step="0.01"
-        id="slider_theta"
-      />
+        <label for="slider_theta">Accuracy (&theta; value):</label>
+        <label
+          for="slider_theta"
+          id="slider_theta_val"
+          style="font-family: monospace; margin-top: 8px"
+          >NULL</label
+        >
+        <input
+          type="range"
+          min="0"
+          max="3"
+          value="0.5"
+          step="0.01"
+          id="slider_theta"
+        />
 
-      <button id="but_run">Run</button>
-      <button id="but_reset">Reset</button>
+        <button id="but_run" onclick="toggleRun();">Run</button>
+        <button id="but_reset">Reset</button>
+      </div>
     </div>
   </body>
 </html>

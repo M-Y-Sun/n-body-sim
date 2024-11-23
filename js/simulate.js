@@ -24,28 +24,52 @@ function _getBodyHTML (sz, x, y)
 const sidebarStyle = window.getComputedStyle(document.getElementById("sidebar"));
 let   XOFFSET      = parseFloat (sidebarStyle.getPropertyValue("width"));
 
+const hitbox = document.getElementById("hitbox");
+
 const qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 
 function addBody (e)
 {
-    const mass    = 20;
-    let   curbody = qt.addBody(e.pageX, e.pageY, mass, "body" + cnt, qt.root);
-
-    qt.calcForceV(curbody, qt.root, 0.5);
-
-    document.body.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
+    const mass = 20;
+    qt.addBody(e.pageX, e.pageY, mass, "body" + cnt);
+    hitbox.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
 
     console.log(qt);
 
     ++cnt;
 }
 
-function getBodyPos (id)
+function runSim ()
 {
-    const bodyStyle = document.getElementById(id).style;
-    const halfWidth = bodyStyle.width / 2;
+    qt.rebuild(parseFloat (thetaSlider.value));
 
-    return [ bodyStyle.left + halfWidth, bodyStyle.top + halfWidth ];
+    for (var node of qt.nodes) {
+        if (node != undefined) {
+            const bodyElem      = document.getElementById(node.id);
+            bodyElem.style.left = _pxToViewport (node.com.x, VW) + "vw";
+            bodyElem.style.top  = _pxToViewport (node.com.y, VH) + "vh";
+
+            // console.log("center of mass:")
+            // console.log(node.com);
+        }
+    }
 }
 
-document.addEventListener("click", addBody);
+const runButton = document.getElementById("but_run");
+let   running   = false;
+let   iid       = -1;
+
+function toggleRun ()
+{
+    if (running) {
+        clearInterval (iid);
+        runButton.innerText = "Run";
+        running             = false;
+    } else {
+        iid                 = setInterval (runSim, 34);
+        runButton.innerText = "Stop";
+        running             = true;
+    }
+}
+
+hitbox.addEventListener("click", addBody);

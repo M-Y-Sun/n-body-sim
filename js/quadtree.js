@@ -5,11 +5,17 @@ class Point
         this.x = x;
         this.y = y;
     }
+
+    /** @returns Clones a Point instance. */
+    clone() { return new Point (this.x, this.y); }
 }
 
 class Vec extends Point
 {
     constructor(x, y) { super (x, y); }
+
+    /** @returns Clones a Vec instance. */
+    clone() { return new Vec (this.x, this.y); }
 
     /** @returns The square of the norm of the vector. */
     normsq() { return this.x * this.x + this.y * this.y; }
@@ -71,29 +77,48 @@ class QTNode
         this.totalMass = 0;
         this.com       = new Point (0, 0);
 
-        this.forceVec = new Vec (0, 0);
+        this.force = new Vec (0, 0);
+    }
+
+    /** @returns Clones a QTNode instance. */
+    clone()
+    {
+        let newObj       = new QTNode (this.center, this.radius);
+        newObj.children  = [...this.children ];
+        newObj.id        = this.id;
+        newObj.totalMass = this.totalMass;
+        newObj.com       = this.com.clone();
+        newObj.force     = this.force.clone();
+
+        return newObj;
+    }
+
+    /**
+     * @param {number} qd The quadrant.
+     * @returns The new center.
+     */
+    getNewCenter(qd)
+    {
+        let center = new Point (0, 0);
+
+        if (qd == 0 || qd == 3)
+            center.x = this.center.x + this.radius / 2;
+        else
+            center.x = this.center.x - this.radius / 2;
+
+        if (qd == 1 || qd == 2)
+            center.y = this.center.y + this.radius / 2;
+        else
+            center.y = this.center.y - this.radius / 2;
+
+        return center;
     }
 
     /**
      * Adds a child to the current QTNode and sets the center and radius of the node.
      * @param {number} qd The quadrant to insert the child to.
      */
-    addChild(qd)
-    {
-        let cx, cy;
-
-        if (qd == 0 || qd == 3)
-            cx = (this.center.x + this.radius) / 2;
-        else
-            cx = (this.center.x - this.radius) / 2;
-
-        if (qd == 1 || qd == 2)
-            cy = (this.center.y + this.radius) / 2;
-        else
-            cy = (this.center.y - this.radius) / 2;
-
-        this.children[qd] = new QTNode (new Point (cx, cy), this.radius / 2);
-    }
+    addChild(qd) { this.children[qd] = new QTNode (this.getNewCenter(qd), this.radius / 2); }
 
     /** @returns If the QTNode represents a leaf node. */
     isLeaf()
@@ -103,6 +128,31 @@ class QTNode
                 return false;
 
         return true;
+    }
+
+    numericID() { return parseInt (this.id.slice(4)); }
+
+    /** @returns The acceleration of the body or group of bodies. */
+    accel()
+    {
+        if (this.totalMass == 0) {
+            return new Vec (0, 0);
+        } else {
+            let newVec = this.force.clone();
+            newVec.scale(1 / this.totalMass);
+            return newVec;
+        }
+    }
+
+    /**
+     * @param {number} t The time to calculate on.
+     * @returns The velocity vector of the body or group of bodies after a certain time.
+     * */
+    velocity(t)
+    {
+        let a = this.accel();
+        a.scale(t);
+        return a;
     }
 }
 
@@ -150,6 +200,17 @@ class Quadtree
     }
 
     /**
+     * Adds a node to the this.nodes array
+     * @param {QTNode} node The node to add
+     */
+    updNode(node)
+    {
+        const id          = node.numericID();
+        this.nodes.length = Math.max(this.nodes.length, id + 1);
+        this.nodes[id]    = node;
+    }
+
+    /**
      * Recursively adds a body to the quadtree
      * @param {number} x1 The x-coordinate of the body.
      * @param {number} y1 The y-coordinate of the body.
@@ -158,17 +219,23 @@ class Quadtree
      * @param {QTNode} node The node to recurse on.
      * @returns The added body as a QTNode.
      */
-    addBody(x1, y1, mass, id, node)
+    addBody(x1, y1, mass, id, node = this.root)
     {
         const qdOld = this.#getQuadrant(node.center, node.com);
         const qdNew = this.#getQuadrant(node.center, new Point (x1, y1));
 
         // if the current node is a leaf node representing a single body, slice the quadrant and move the node
         if (node != this.root && node.isLeaf() && node.id != null) {
-            node.children[qdOld] = structuredClone (node);
-            node.addChild(qdOld);
-            node.id       = null;
-            node.forceVec = null;
+            node.children[qdOld]           = node.clone();
+            node.children[qdOld].center    = node.getNewCenter(qdOld);
+            node.children[qdOld].radius    = node.radius / 2;
+            node.children[qdOld].totalMass = node.totalMass;
+            node.children[qdOld].children  = [ null, null, null, null ];
+
+            this.updNode(node.children[qdOld]);
+
+            node.id    = null;
+            node.force = null;
         }
 
         node.com.x = (node.com.x * node.totalMass + x1 * mass) / (node.totalMass + mass);
@@ -178,7 +245,7 @@ class Quadtree
         // if the current node is an empty leaf
         if (node != this.root && node.isLeaf() && node.id == null) {
             node.id = id;
-            this.nodes.push(node);
+            this.updNode(node);
             return node;
         }
 
@@ -198,13 +265,6 @@ class Quadtree
      */
     calcForceV(targ, node, theta)
     {
-        console.log("------calcForceV:------");
-        console.log(targ);
-        console.log(node);
-        console.log("-----------------------");
-
-        // debugger;
-
         if (node.id == targ.id)
             return;
 
@@ -215,13 +275,18 @@ class Quadtree
             let   v     = new Vec (node.com.x - targ.com.x, node.com.y - targ.com.y);
             const fmagn = this.#forceFunc(targ.totalMass, node.totalMass, v.norm());
 
-            console.log(`Normalize vector <${v.x}, ${v.y}> to ${fmagn}.`)
+            // console.log(`Normalize vector <${v.x}, ${v.y}> to ${fmagn}.`)
 
             v.normalize(fmagn);
 
-            targ.forceVec = targ.forceVec.sum(v);
+            targ.force = targ.force.sum(v);
 
-            console.log(targ.forceVec);
+            // console.log("force:")
+            // console.log(targ.force);
+            // console.log("\nacceleration:")
+            // console.log(targ.accel());
+            // console.log("\nvelocity at t=1:")
+            // console.log(targ.velocity(1));
 
             return;
         }
@@ -229,5 +294,31 @@ class Quadtree
         for (var chd of node.children)
             if (chd != null)
                 this.calcForceV(targ, chd, theta);
+    }
+
+    /** Updates the position of each leaf node and rebuilds the quadtree. */
+    rebuild(theta)
+    {
+        for (var node of this.nodes) {
+            if (node != undefined) {
+                this.calcForceV(node, this.root, theta);
+            }
+        }
+
+        this.root = new QTNode (this.root.center, this.root.radius);
+        let nodes = [];
+
+        for (var node of this.nodes)
+            nodes.push(node);
+
+        this.nodes = [];
+
+        for (var node of nodes) {
+            if (node != undefined) {
+                node.com.x += node.velocity(1).x;
+                node.com.y += node.velocity(1).y;
+                this.addBody(node.com.x, node.com.y, node.totalMass, node.id, this.root);
+            }
+        }
     }
 }

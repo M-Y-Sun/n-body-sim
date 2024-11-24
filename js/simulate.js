@@ -1,9 +1,9 @@
 let VW = window.innerWidth;
 let VH = window.innerHeight;
 
-function _pxToViewport (p, vp) { return 100 * p / vp; }
-
 let cnt = 0;
+
+const colors = [ "red", "blue" ];
 
 function _getBodyHTML (sz, x, y)
 {
@@ -14,8 +14,9 @@ function _getBodyHTML (sz, x, y)
   style="
     width: ${sz}px;
     height: ${sz}px;
-    left: ${_pxToViewport (x - sz / 2, VW)}vw;
-    top: ${_pxToViewport (y - sz / 2, VH)}vh
+    left: ${x - sz / 2}px;
+    top: ${y - sz / 2}px;
+    background-color: ${colors[cnt % 2]};
   "
 ></div>
 `
@@ -31,7 +32,10 @@ const qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH))
 function addBody (e)
 {
     const mass = 20;
-    qt.addBody(e.pageX, e.pageY, mass, "body" + cnt);
+
+    if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, "body" + cnt))
+        return;
+
     hitbox.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
 
     console.log(qt);
@@ -46,8 +50,8 @@ function runSim ()
     for (var node of qt.nodes) {
         if (node != undefined) {
             const bodyElem      = document.getElementById(node.id);
-            bodyElem.style.left = _pxToViewport (node.com.x, VW) + "vw";
-            bodyElem.style.top  = _pxToViewport (node.com.y, VH) + "vh";
+            bodyElem.style.left = node.com.x + "px";
+            bodyElem.style.top  = node.com.y + "px";
 
             // console.log("center of mass:")
             // console.log(node.com);

@@ -59,6 +59,8 @@ class Vec extends Point
     dot(v) { return this.x * v.x + this.y + v.y; }
 }
 
+const maxVelocity = 32;
+
 class QTNode
 {
     /**
@@ -67,7 +69,7 @@ class QTNode
      */
     constructor(center, radius)
     {
-        this.children = [ null, null, null, null ];
+        this.children = [ undefined, undefined, undefined, undefined ];
 
         this.center = center;
         this.radius = radius;
@@ -124,7 +126,7 @@ class QTNode
     isLeaf()
     {
         for (var chd of this.children)
-            if (chd != null)
+            if (chd != undefined)
                 return false;
 
         return true;
@@ -152,12 +154,20 @@ class QTNode
     {
         let a = this.accel();
         a.scale(t);
+
+        if (a.norm() > maxVelocity)
+            a.normalize(maxVelocity + 1);
+
         return a;
     }
 }
 
 class Quadtree
 {
+    #G    = 6.6743015e2;
+    #RLIM = 10;
+    // #VERR = 10;
+
     /**
      * Constructs a Quadtree.
      * @param {number} x The x-coordinate of the center of the bounding box
@@ -196,7 +206,35 @@ class Quadtree
         if (r == 0)
             return 0;
 
-        return 6.6743015e1 * m1 * m2 / (r * r);
+        return this.#G * m1 * m2 / (r * r);
+    }
+
+    /**
+     * @param {QTNode} n1 The moving node.
+     * @param {QTNode} n2 The node to compare to.
+     * @returns If n1 will collide with n2.
+     */
+    #checkCollision(n1, n2)
+    {
+        const n1v = n1.velocity(1);
+
+        if (n1v.norm() > maxVelocity)
+            return true;
+
+        const n1sz = n1.totalMass / 2;
+        const n2sz = n2.totalMass / 2;
+
+        if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz && n1.com.y <= n2.com.y + n2sz
+            && n2.com.y <= n1.com.y + n1sz)
+            return true;
+
+        return false;
+
+        // // point to line distance formula
+        // const num = Math.abs(n1v.y * n2.com.x - n1v.x * n2.com.y + n1v.x * n1.com.y - n1v.y * n1.com.x);
+        // const den = n1v.norm();
+        // console.log(num / den);
+        // return num / den < this.#VERR;
     }
 
     /**
@@ -217,25 +255,41 @@ class Quadtree
      * @param {number} mass The mass of the body.
      * @param {string} id The HTML ID of the body.
      * @param {QTNode} node The node to recurse on.
-     * @returns The added body as a QTNode.
+     * @returns If the body was successfully added.
      */
     addBody(x1, y1, mass, id, node = this.root)
     {
         const qdOld = this.#getQuadrant(node.center, node.com);
         const qdNew = this.#getQuadrant(node.center, new Point (x1, y1));
 
-        // if the current node is a leaf node representing a single body, slice the quadrant and move the node
         if (node != this.root && node.isLeaf() && node.id != null) {
-            node.children[qdOld]           = node.clone();
-            node.children[qdOld].center    = node.getNewCenter(qdOld);
-            node.children[qdOld].radius    = node.radius / 2;
-            node.children[qdOld].totalMass = node.totalMass;
-            node.children[qdOld].children  = [ null, null, null, null ];
+            // if the radius is too small, implying that the bodies are super close together, merge them
+            if (node.radius <= this.#RLIM) {
+                node.totalMass += mass;
 
-            this.updNode(node.children[qdOld]);
+                const elemTarg = document.getElementById(id);
+                const elemNode = document.getElementById(node.id);
 
-            node.id    = null;
-            node.force = null;
+                if (elemTarg != null) {
+                    elemTarg.remove();
+                    elemNode.style.width  = node.totalMass + "px";
+                    elemNode.style.height = node.totalMass + "px";
+                }
+
+                return false;
+            } else {
+                // if the current node is a leaf node representing a single body, slice the quadrant and move the node
+                node.children[qdOld]           = node.clone();
+                node.children[qdOld].center    = node.getNewCenter(qdOld);
+                node.children[qdOld].radius    = node.radius / 2;
+                node.children[qdOld].totalMass = node.totalMass;
+                node.children[qdOld].children  = [ undefined, undefined, undefined, undefined ];
+
+                this.updNode(node.children[qdOld]);
+
+                node.id    = null;
+                node.force = undefined;
+            }
         }
 
         node.com.x = (node.com.x * node.totalMass + x1 * mass) / (node.totalMass + mass);
@@ -246,10 +300,10 @@ class Quadtree
         if (node != this.root && node.isLeaf() && node.id == null) {
             node.id = id;
             this.updNode(node);
-            return node;
+            return true;
         }
 
-        if (node.children[qdNew] == null)
+        if (node.children[qdNew] == undefined)
             node.addChild(qdNew);
 
         return this.addBody(x1, y1, mass, id, node.children[qdNew]);
@@ -268,8 +322,8 @@ class Quadtree
         if (node.id == targ.id)
             return;
 
-        const s = Math.sqrt(Math.pow(targ.com.x - node.com.x, 2) + Math.pow(targ.com.y - node.com.y, 2));
-        const d = 2 * node.radius;
+        const s = 2 * node.radius;
+        const d = Math.sqrt(Math.pow(targ.com.x - node.com.x, 2) + Math.pow(targ.com.y - node.com.y, 2));
 
         if (node.isLeaf() || s / d < theta) {
             let   v     = new Vec (node.com.x - targ.com.x, node.com.y - targ.com.y);
@@ -292,8 +346,79 @@ class Quadtree
         }
 
         for (var chd of node.children)
-            if (chd != null)
+            if (chd != undefined)
                 this.calcForceV(targ, chd, theta);
+    }
+
+    /**
+     * Recursively checks for collisions and merges colliding bodies.
+     * @param {QTNode} node The node to recurse on.
+     * @returns If the quadtree was modified.
+     */
+    collide(node)
+    {
+        let paLeaf = true;
+
+        for (var chd of node.children)
+            if (chd != undefined && !chd.isLeaf())
+                paLeaf = false;
+
+        if (paLeaf) {
+            let ret = false;
+
+            for (var i = 0; i < 4; ++i) {
+                let n1 = node.children[i];
+
+                if (n1 == undefined)
+                    continue;
+
+                for (var j = i + 1; j < 4; ++j) {
+                    let n2 = node.children[j];
+
+                    if (n2 == undefined)
+                        continue;
+
+                    const n1Elem = document.getElementById(n1.id);
+                    const n2Elem = document.getElementById(n2.id);
+
+                    if (this.#checkCollision(n1, n2)) {
+                        if (n1Elem != null)
+                            n1Elem.remove();
+
+                        n2.totalMass += n1.totalMass;
+                        n2Elem.style.width  = n2.totalMass + "px";
+                        n2Elem.style.height = n2.totalMass + "px";
+
+                        node.children[i]           = undefined;
+                        this.nodes[n1.numericID()] = undefined;
+
+                        ret = true;
+                        continue;
+                    }
+
+                    if (this.#checkCollision(n2, n1)) {
+                        if (n2Elem != null)
+                            n2Elem.remove();
+
+                        n1.totalMass += n2.totalMass;
+                        n1Elem.style.width  = n1.totalMass + "px";
+                        n1Elem.style.height = n1.totalMass + "px";
+
+                        node.children[j]           = undefined;
+                        this.nodes[n2.numericID()] = undefined;
+
+                        ret = true;
+                        continue;
+                    }
+                }
+            }
+
+            return ret;
+        }
+
+        for (var chd of node.children)
+            if (chd != undefined && !chd.isLeaf())
+                return this.collide(chd);
     }
 
     /** Updates the position of each leaf node and rebuilds the quadtree. */
@@ -301,9 +426,14 @@ class Quadtree
     {
         for (var node of this.nodes) {
             if (node != undefined) {
+                node.force.x = 0;
+                node.force.y = 0;
                 this.calcForceV(node, this.root, theta);
             }
         }
+
+        if (this.collide(this.root))
+            return;
 
         this.root = new QTNode (this.root.center, this.root.radius);
         let nodes = [];

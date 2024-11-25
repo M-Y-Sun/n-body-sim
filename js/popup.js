@@ -55,8 +55,9 @@ vxSlider.oninput = function () {
 
     const svg = document.getElementById("arrow_line" + id);
     const node = qt.nodes[id];
-    const sz = node.totalMass / 2;
-    svg.setAttribute("d", `M${node.com.x + sz},${node.com.y + sz} L${node.com.x + mfac * (vxVal) + sz},${node.com.y + -1 * mfac * (parseFloat(vySlider.value)) + sz}`);
+    const offset = node.totalMass / 2;
+    svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vxVal + offset},${
+                              node.com.y + -1 * mfac * (parseFloat (vySlider.value)) + offset}`);
 }
 
 vySlider.oninput = function () {
@@ -68,8 +69,10 @@ vySlider.oninput = function () {
 
     const svg = document.getElementById("arrow_line" + id);
     const node = qt.nodes[id];
-    const sz = node.totalMass / 2;
-    svg.setAttribute("d", `M${node.com.x + sz},${node.com.y + sz} L${node.com.x + mfac * (parseFloat(vxSlider.value)) + sz},${node.com.y + -1 * mfac * vyVal + sz}`);
+    const offset = node.totalMass / 2;
+    svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${
+                              node.com.x + mfac * (parseFloat (vxSlider.value))
+                              + offset},${node.com.y + -1 * mfac * vyVal + offset}`);
 }
 
 function hidePopup (e)

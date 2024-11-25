@@ -44,7 +44,10 @@ function _getBodyHTML (sz, x, y)
  */
 function _getSVGHTML (idx)
 {
-    const node = qt.nodes[idx];
+    const node   = qt.nodes[idx];
+    const vx     = node.force.x / node.totalMass;
+    const vy     = node.force.y / node.totalMass;
+    const offset = node.totalMass / 2;
 
     return `
 <svg height="100%" width="100%">
@@ -67,10 +70,14 @@ function _getSVGHTML (idx)
     stroke-width="4"
     fill="none"
     stroke="red"
-    d="M${node.com.x},${node.com.y} L${node.com.x + node.force.x},${node.com.y + node.force.y}"
+    d="M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vx + offset},${
+        node.com.y + mfac * vy + offset}"
   />
 </svg>
 `
+    svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${
+                              node.com.x + mfac * (parseFloat (vxSlider.value))
+                              + offset},${node.com.y + -1 * mfac * vyVal + offset}`);
 }
 
 let mass = parseInt (massSlider.value);

@@ -55,14 +55,23 @@
         >
         <input
           type="range"
-          min="5"
-          max="50"
-          value="20"
+          min="10"
+          max="80"
+          value="30"
           step="1"
           id="slider_mass"
         />
 
         <br />
+
+        <div
+          style="display: flex; align-items: center; justify-content: center"
+        >
+          <div>
+            <label for="toggle_vec" style="display: inline">Show Vectors</label>
+            <input type="checkbox" id="toggle_vec" style="display: inline" />
+          </div>
+        </div>
 
         <button id="but_run" onclick="toggleRun();">Run</button>
         <button id="but_reset" onclick="reset();">Reset</button>
@@ -82,9 +91,9 @@
       >
       <input
         type="range"
-        min="5"
-        max="50"
-        value="20"
+        min="10"
+        max="80"
+        value="30"
         step="1"
         id="slider_curmass"
       />

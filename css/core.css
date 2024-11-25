@@ -23,11 +23,15 @@ div.container {
 #body_container,
 #svg_container {
     display: block;
+
     width: 100%;
     height: 100%;
 }
 
 #svg_container {
+    /* changed by javascript */
+    display: none;
+
     pointer-events: none;
     position: fixed;
     top: 0;

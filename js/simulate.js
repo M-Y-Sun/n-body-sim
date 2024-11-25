@@ -75,9 +75,6 @@ function _getSVGHTML (idx)
   />
 </svg>
 `
-    svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${
-                              node.com.x + mfac * (parseFloat (vxSlider.value))
-                              + offset},${node.com.y + -1 * mfac * vyVal + offset}`);
 }
 
 let mass = parseInt (massSlider.value);
@@ -102,6 +99,8 @@ function addBody (e)
 
 function runSim ()
 {
+    svgContainer.innerHTML = "";
+
     qt.rebuild(parseFloat (thetaSlider.value));
 
     for (var node of qt.nodes) {
@@ -109,9 +108,7 @@ function runSim ()
             const bodyElem      = document.getElementById(node.id);
             bodyElem.style.left = node.com.x + "px";
             bodyElem.style.top  = node.com.y + "px";
-
-            // console.log("center of mass:")
-            // console.log(node.com);
+            svgContainer.insertAdjacentHTML("beforeend", _getSVGHTML (parseInt (node.id.slice(4))));
         }
     }
 }
@@ -124,21 +121,12 @@ function toggleRun ()
 {
     if (running) {
         clearInterval (iid);
-
-        svgContainer.innerHTML = "";
-
-        for (var node of qt.nodes)
-            if (node != undefined)
-                svgContainer.insertAdjacentHTML("beforeend", _getSVGHTML (parseInt (node.id.slice(4))));
-
-        svgContainer.style.display = "block";
-        runButton.innerText        = "Run";
-        running                    = false;
+        runButton.innerText = "Run";
+        running             = false;
     } else {
-        iid                        = setInterval (runSim, 1000 / FPS);
-        svgContainer.style.display = "none";
-        runButton.innerText        = "Stop";
-        running                    = true;
+        iid                 = setInterval (runSim, 1000 / FPS);
+        runButton.innerText = "Stop";
+        running             = true;
     }
 }
 
@@ -151,3 +139,5 @@ function reset ()
 }
 
 document.getElementById("hitbox").addEventListener("click", addBody);
+document.getElementById("toggle_vec")
+    .addEventListener("change", (e) => { svgContainer.style.display = e.currentTarget.checked ? "block" : "none"; })

@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="./css/body.css" />
 
     <script defer src="./js/sidebar.js"></script>
+    <script defer src="./js/popup.js"></script>
     <script defer src="./js/quadtree.js"></script>
     <script defer src="./js/simulate.js"></script>
   </head>
@@ -19,7 +20,7 @@
   <body>
     <div class="container">
       <div id="hitbox"></div>
-      <div id="sidebar">
+      <div id="sidebar" onclick="hidePopup();">
         <h1>N-Body Simulation</h1>
         <p>
           Click the display to add a body.
@@ -45,7 +46,7 @@
 
         <br />
 
-        <label for="slider_mass">Default Mass:</label>
+        <label for="slider_mass">Default Mass (10<sup>6</sup> kg):</label>
         <label
           for="slider_mass"
           id="slider_mass_val"
@@ -66,6 +67,26 @@
         <button id="but_run" onclick="toggleRun();">Run</button>
         <button id="but_reset" onclick="reset();">Reset</button>
       </div>
+    </div>
+
+    <div id="body_container"></div>
+
+    <div id="popup">
+      <label for="slider_curmass">Mass (10<sup>6</sup> kg):</label>
+      <label
+        for="slider_curmass"
+        id="slider_curmass_val"
+        style="font-family: monospace; margin-top: 8px"
+        >NULL</label
+      >
+      <input
+        type="range"
+        min="5"
+        max="50"
+        value="20"
+        step="1"
+        id="slider_curmass"
+      />
     </div>
   </body>
 </html>

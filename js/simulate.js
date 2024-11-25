@@ -17,6 +17,7 @@ function _getBodyHTML (sz, x, y)
     left: ${x - sz / 2}px;
     top: ${y - sz / 2}px;
   "
+  onclick="showPopup(this);"
 ></div>
 `
 }
@@ -24,7 +25,8 @@ function _getBodyHTML (sz, x, y)
 const sidebarStyle = window.getComputedStyle(document.getElementById("sidebar"));
 let   XOFFSET      = parseFloat (sidebarStyle.getPropertyValue("width"));
 
-const hitbox = document.getElementById("hitbox");
+const hitbox        = document.getElementById("hitbox");
+const bodyContainer = document.getElementById("body_container");
 
 const qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 
@@ -37,10 +39,12 @@ massSlider.oninput = function () {
 
 function addBody (e)
 {
+    hidePopup ();
+
     if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, "body" + cnt))
         return;
 
-    hitbox.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
+    bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
 
     console.log(qt);
 
@@ -82,8 +86,8 @@ function toggleRun ()
 
 function reset ()
 {
-    hitbox.innerHTML = "";
-    running          = true;
+    bodyContainer.innerHTML = "";
+    running                 = true;
     toggleRun ();
 }
 

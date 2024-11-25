@@ -4,11 +4,12 @@
 }
 
 #sidebar {
-    background-color: var(--sbcolor);
-    width: 25vw;
-    height: 100%;
     display: block;
     position: absolute;
+    width: 25vw;
+    height: 100%;
+    background-color: var(--sbcolor);
+    z-index: 1000;
 }
 
 #sidebar h1,
@@ -30,7 +31,8 @@
     margin: 20px 2vw;
 }
 
-#sidebar label {
+#sidebar label,
+#popup label {
     display: block;
     text-align: center;
     font-size: var(--fontsize);
@@ -41,4 +43,24 @@
     display: block;
     margin: 10px auto;
     text-align: center;
+}
+
+#popup {
+    visibility: visible;
+
+    position: absolute;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 200px;
+    height: 90px;
+
+    text-align: center;
+    border-radius: 6px;
+    background-color: var(--sbcolor);
+    border-style: solid;
+    border-color: #888888;
 }

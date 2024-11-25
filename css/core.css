@@ -1,6 +1,7 @@
 html,
 body {
     margin: 0;
+    width: 100%;
     height: 100%;
     overflow: hidden
 }
@@ -19,8 +20,22 @@ div.container {
 }
 
 #hitbox,
-#body_container {
+#body_container,
+#svg_container {
     display: block;
     width: 100%;
     height: 100%;
+}
+
+#svg_container {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+#svg_container svg {
+    position: fixed;
+    top: 0;
+    left: 0;
 }

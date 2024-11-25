@@ -19,8 +19,9 @@ function showPopup (elem)
     curmassSlider.value = curmassSliderVal.innerText = elem.style.width.slice(0, -2);
 
     const id              = parseInt (elem.id.slice(4));
-    vxSliderVal.innerText = vxSlider.value = qt.nodes[id].force.x.toFixed(1);
-    vySliderVal.innerText = vySlider.value = qt.nodes[id].force.y.toFixed(1);
+    const m               = qt.nodes[id].totalMass;
+    vxSliderVal.innerText = vxSlider.value = (qt.nodes[id].force.x / m).toFixed(1);
+    vySliderVal.innerText = vySlider.value = (qt.nodes[id].force.y / m).toFixed(1);
 
     // popup.style.top        = (parseInt (elem.style.top) + 50) + "px";
     // popup.style.left       = (parseInt (elem.style.left) - 90) + "px";
@@ -43,18 +44,32 @@ curmassSlider.oninput = function () {
     curElem.style.height = curmassSlider.value + "px";
 }
 
+const mfac = 32;
+
 vxSlider.oninput = function () {
-    vxSliderVal.innerText = parseFloat(vxSlider.value).toFixed(1);
+    const vxVal = parseFloat(vxSlider.value);
+    vxSliderVal.innerText = vxVal.toFixed(1);
 
     const id = parseInt(curElem.id.slice(4));
-    qt.nodes[id].force.x = parseFloat (vxSlider.value) * qt.nodes[id].totalMass;
+    qt.nodes[id].force.x = vxVal * qt.nodes[id].totalMass;
+
+    const svg = document.getElementById("arrow_line" + id);
+    const node = qt.nodes[id];
+    const sz = node.totalMass / 2;
+    svg.setAttribute("d", `M${node.com.x + sz},${node.com.y + sz} L${node.com.x + mfac * (vxVal) + sz},${node.com.y + -1 * mfac * (parseFloat(vySlider.value)) + sz}`);
 }
 
 vySlider.oninput = function () {
-    vySliderVal.innerText = parseFloat(vySlider.value).toFixed(1);
+    const vyVal = parseFloat(vySlider.value);
+    vySliderVal.innerText = vyVal.toFixed(1);
 
     const id = parseInt(curElem.id.slice(4));
-    qt.nodes[id].force.y = -1 * parseFloat (vySlider.value) * qt.nodes[id].totalMass;
+    qt.nodes[id].force.y = -1 * vyVal * qt.nodes[id].totalMass;
+
+    const svg = document.getElementById("arrow_line" + id);
+    const node = qt.nodes[id];
+    const sz = node.totalMass / 2;
+    svg.setAttribute("d", `M${node.com.x + sz},${node.com.y + sz} L${node.com.x + mfac * (parseFloat(vxSlider.value)) + sz},${node.com.y + -1 * mfac * vyVal + sz}`);
 }
 
 function hidePopup (e)

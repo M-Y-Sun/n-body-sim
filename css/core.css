@@ -29,9 +29,7 @@ div.container {
 }
 
 #svg_container {
-    /* changed by javascript */
-    display: none;
-
+    display: block;
     pointer-events: none;
     position: fixed;
     top: 0;
@@ -42,4 +40,10 @@ div.container {
     position: fixed;
     top: 0;
     left: 0;
+}
+
+#svg_arrows,
+#svg_paths {
+    /* changed by javascript */
+    display: none;
 }

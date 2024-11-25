@@ -45,6 +45,20 @@
     text-align: center;
 }
 
+div.toggle_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    margin: 20px 0;
+}
+
+div.toggle_container div label,
+div.toggle_container div input {
+    display: inline !important;
+}
+
 #popup {
     visibility: hidden;
 

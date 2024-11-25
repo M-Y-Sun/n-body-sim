@@ -1,5 +1,5 @@
-const FPS = 60;
-// const FPS = 5;
+const FPS           = 60;
+const samplesPerSec = 10;
 
 let VW = window.innerWidth;
 let VH = window.innerHeight;
@@ -10,7 +10,8 @@ const sidebarStyle = window.getComputedStyle(document.getElementById("sidebar"))
 let   XOFFSET      = parseFloat (sidebarStyle.getPropertyValue("width"));
 
 const bodyContainer = document.getElementById("body_container");
-const svgContainer  = document.getElementById("svg_container");
+const svgArrows     = document.getElementById("svg_arrows");
+const svgPaths      = document.getElementById("svg_paths");
 
 let qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 
@@ -38,11 +39,11 @@ function _getBodyHTML (sz, x, y)
 }
 
 /**
- * SVG code from https://stackoverflow.com/a/60714330.
+ * Code of <defs> element is from https://stackoverflow.com/a/60714330 (arrow head).
  * @param {number} idx The index.
- * @returns HTML of an svg with id idx.
+ * @returns HTML that goes inside an SVG element representing an arrow.
  */
-function _getSVGHTML (idx)
+function _getSVGArrowHTML (idx)
 {
     const node   = qt.nodes[idx];
     const vx     = node.force.x / node.totalMass;
@@ -50,30 +51,48 @@ function _getSVGHTML (idx)
     const offset = node.totalMass / 2;
 
     return `
-<svg height="100%" width="100%">
-  <defs>
-    <marker
-      id="arrow_head${idx}"
-      orient="auto"
-      markerWidth="2"
-      markerHeight="4"
-      refX="0.1"
-      refY="2"
-    >
-      <path d="M0,0 V4 L2,2 Z" fill="red" />
-    </marker>
-  </defs>
+<defs>
+  <marker
+    id="arrow_head${idx}"
+    orient="auto"
+    markerWidth="2"
+    markerHeight="4"
+    refX="0.1"
+    refY="2"
+  >
+    <path d="M0,0 V4 L2,2 Z" fill="red" />
+  </marker>
+</defs>
 
-  <path
-    id="arrow_line${idx}"
-    marker-end="url(#arrow_head${idx})"
-    stroke-width="4"
-    fill="none"
-    stroke="red"
-    d="M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vx + offset},${
+<path
+  id="arrow_line${idx}"
+  marker-end="url(#arrow_head${idx})"
+  stroke-width="4"
+  fill="none"
+  stroke="red"
+  d="M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vx + offset},${
         node.com.y + mfac * vy + offset}"
-  />
-</svg>
+/>
+`
+}
+
+/**
+ * @param {number} idx The index.
+ * @returns HTML that goes inside an SVG element representing an arrow.
+ */
+function _getSVGPathHTML (idx)
+{
+    const node   = qt.nodes[idx];
+    const offset = node.totalMass / 2;
+
+    return `
+<path
+  id="path${idx}"
+  stroke-width="4"
+  fill="none"
+  stroke="blue"
+  d="M${node.com.x + offset},${node.com.y + offset}"
+/>
 `
 }
 
@@ -92,14 +111,19 @@ function addBody (e)
         return;
 
     bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
-    svgContainer.insertAdjacentHTML("beforeend", _getSVGHTML (cnt++));
+    svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (cnt));
+    svgPaths.insertAdjacentHTML("beforeend", _getSVGPathHTML (cnt));
 
     console.log(qt);
+
+    ++cnt;
 }
+
+let frame = 0;
 
 function runSim ()
 {
-    svgContainer.innerHTML = "";
+    svgArrows.innerHTML = "";
 
     qt.rebuild(parseFloat (thetaSlider.value));
 
@@ -108,9 +132,20 @@ function runSim ()
             const bodyElem      = document.getElementById(node.id);
             bodyElem.style.left = node.com.x + "px";
             bodyElem.style.top  = node.com.y + "px";
-            svgContainer.insertAdjacentHTML("beforeend", _getSVGHTML (parseInt (node.id.slice(4))));
+
+            const id = parseInt (node.id.slice(4));
+            svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (id));
+
+            if (frame % (FPS / samplesPerSec) == 0) {
+                const curpath = document.getElementById("path" + id);
+                const pathstr = curpath.getAttribute("d");
+                const offset  = node.totalMass / 2;
+                curpath.setAttribute("d", pathstr + ` L${node.com.x + offset},${node.com.y + offset}`);
+            }
         }
     }
+
+    frame = (frame + 1) % 256;
 }
 
 const runButton = document.getElementById("but_run");
@@ -133,11 +168,17 @@ function toggleRun ()
 function reset ()
 {
     bodyContainer.innerHTML = "";
-    running                 = true;
-    qt                      = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
+    svgArrows.innerHTML     = "";
+    svgPaths.innerHTML      = "";
+
+    qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
+
+    running = true;
     toggleRun ();
 }
 
 document.getElementById("hitbox").addEventListener("click", addBody);
 document.getElementById("toggle_vec")
-    .addEventListener("change", (e) => { svgContainer.style.display = e.currentTarget.checked ? "block" : "none"; })
+    .addEventListener("change", (e) => { svgArrows.style.display = e.currentTarget.checked ? "block" : "none"; })
+document.getElementById("toggle_path")
+    .addEventListener("change", (e) => { svgPaths.style.display = e.currentTarget.checked ? "block" : "none"; })

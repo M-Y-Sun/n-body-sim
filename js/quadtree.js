@@ -164,7 +164,7 @@ class QTNode
 
 class Quadtree
 {
-    #G    = 6.6743015e1 / 8;
+    #G    = 6.6743015e1 / 4;
     #RLIM = 0.25;
     #VERR = 0.5;
 

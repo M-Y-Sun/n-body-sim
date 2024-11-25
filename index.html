@@ -22,11 +22,15 @@
       <div id="hitbox"></div>
       <div id="sidebar" onclick="hidePopup();">
         <h1>N-Body Simulation</h1>
+        <p>Click the display to add a body.</p>
+        <p>Click the body to show options to change mass and velocity.</p>
         <p>
-          Click the display to add a body.
-          <br />
-          Click the body to show options to change mass and velocity.
+          <b>Note:</b> Enabling vectors and/or paths while running may cause
+          additional CPU pressure. Your computer may consumer more power while
+          these graphics are enabled.
         </p>
+
+        <br />
 
         <label for="slider_theta">Accuracy (&theta; value):</label>
         <label
@@ -57,19 +61,19 @@
           type="range"
           min="10"
           max="80"
-          value="30"
+          value="20"
           step="1"
           id="slider_mass"
         />
 
-        <br />
-
-        <div
-          style="display: flex; align-items: center; justify-content: center"
-        >
+        <div class="toggle_container">
           <div>
-            <label for="toggle_vec" style="display: inline">Show Vectors</label>
-            <input type="checkbox" id="toggle_vec" style="display: inline" />
+            <label for="toggle_vec">Show Vectors</label>
+            <input type="checkbox" id="toggle_vec" />
+          </div>
+          <div>
+            <label for="toggle_path">Show Paths</label>
+            <input type="checkbox" id="toggle_path" />
           </div>
         </div>
 
@@ -79,7 +83,10 @@
     </div>
 
     <div id="body_container"></div>
-    <div id="svg_container"></div>
+    <div id="svg_container">
+      <svg height="100%" width="100%" id="svg_arrows"></svg>
+      <svg height="100%" width="100%" id="svg_paths"></svg>
+    </div>
 
     <div id="popup">
       <label for="slider_curmass">Mass (10<sup>6</sup> kg):</label>
@@ -93,7 +100,7 @@
         type="range"
         min="10"
         max="80"
-        value="30"
+        value="20"
         step="1"
         id="slider_curmass"
       />

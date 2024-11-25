@@ -12,8 +12,8 @@
     <link rel="stylesheet" href="./css/body.css" />
 
     <script defer src="./js/sidebar.js"></script>
-    <script defer src="./js/popup.js"></script>
     <script defer src="./js/quadtree.js"></script>
+    <script defer src="./js/popup.js"></script>
     <script defer src="./js/simulate.js"></script>
   </head>
 
@@ -39,7 +39,7 @@
           type="range"
           min="0"
           max="3"
-          value="0.5"
+          value="0.2"
           step="0.01"
           id="slider_theta"
         />
@@ -86,6 +86,42 @@
         value="20"
         step="1"
         id="slider_curmass"
+      />
+
+      <br />
+
+      <label for="slider_vx">Velocity X (m/s):</label>
+      <label
+        for="slider_vx"
+        id="slider_vx_val"
+        style="font-family: monospace; margin-top: 8px"
+        >NULL</label
+      >
+      <input
+        type="range"
+        min="-5"
+        max="5"
+        value="0"
+        step="0.1"
+        id="slider_vx"
+      />
+
+      <br />
+
+      <label for="slider_vy">Velocity Y (m/s):</label>
+      <label
+        for="slider_vy"
+        id="slider_vy_val"
+        style="font-family: monospace; margin-top: 8px"
+        >NULL</label
+      >
+      <input
+        type="range"
+        min="-5"
+        max="5"
+        value="0"
+        step="0.1"
+        id="slider_vy"
       />
     </div>
   </body>

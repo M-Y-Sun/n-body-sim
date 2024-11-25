@@ -166,7 +166,7 @@ class Quadtree
 {
     #G    = 6.6743015e1;
     #RLIM = 6;
-    // #VERR = 10;
+    #VERR = 1;
 
     /**
      * Constructs a Quadtree.
@@ -218,22 +218,40 @@ class Quadtree
     {
         const n1v = n1.velocity(1);
 
-        if (n1v.norm() > maxVelocity)
+        if (n1v.norm() > maxVelocity) {
+            console.log("max velocity");
             return true;
+        }
 
         const n1sz = n1.totalMass / 2;
         const n2sz = n2.totalMass / 2;
 
         if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz && n1.com.y <= n2.com.y + n2sz
-            && n2.com.y <= n1.com.y + n1sz)
+            && n2.com.y <= n1.com.y + n1sz) {
+            console.log("physical collision");
             return true;
+        }
+
+        // return false;
+
+        const new_n1x = n1.com.x + n1v.x;
+
+        if (n2.com.x <= Math.min(n1.com.x, new_n1x) - this.#VERR
+            || n2.com.x >= Math.max(n1.com.x, new_n1x) + this.#VERR)
+            return false;
+
+        // point to line distance formula
+        const num = Math.abs(n1v.y * n2.com.x - n1v.x * n2.com.y + n1v.x * n1.com.y - n1v.y * n1.com.x);
+        const den = n1v.norm();
+
+        // console.log(num / den);
+
+        if (num / den < this.#VERR) {
+            console.log("point to line");
+            return true;
+        }
 
         return false;
-
-        // // point to line distance formula
-        // const num = Math.abs(n1v.y * n2.com.x - n1v.x * n2.com.y + n1v.x * n1.com.y - n1v.y * n1.com.x);
-        // const den = n1v.norm();
-        // console.log(num / den);
         // return num / den < this.#VERR;
     }
 
@@ -253,11 +271,12 @@ class Quadtree
      * @param {number} x1 The x-coordinate of the body.
      * @param {number} y1 The y-coordinate of the body.
      * @param {number} mass The mass of the body.
+     * @param {Vec} force The force to initialize to.
      * @param {string} id The HTML ID of the body.
      * @param {QTNode} node The node to recurse on.
      * @returns If the body was successfully added.
      */
-    addBody(x1, y1, mass, id, node = this.root)
+    addBody(x1, y1, mass, force, id, node = this.root)
     {
         const qdOld = this.#getQuadrant(node.center, node.com);
         const qdNew = this.#getQuadrant(node.center, new Point (x1, y1));
@@ -265,6 +284,8 @@ class Quadtree
         if (node != this.root && node.isLeaf() && node.id != null) {
             // if the radius is too small, implying that the bodies are super close together, merge them
             if (node.radius <= this.#RLIM) {
+                console.log("quadtree division");
+
                 node.totalMass += mass;
 
                 const elemTarg = document.getElementById(id);
@@ -272,6 +293,7 @@ class Quadtree
 
                 if (elemTarg != null) {
                     elemTarg.remove();
+                    node.force            = node.force.sum(force);
                     elemNode.style.width  = node.totalMass + "px";
                     elemNode.style.height = node.totalMass + "px";
                 }
@@ -298,7 +320,8 @@ class Quadtree
 
         // if the current node is an empty leaf
         if (node != this.root && node.isLeaf() && node.id == null) {
-            node.id = id;
+            node.id    = id;
+            node.force = force;
             this.updNode(node);
             return true;
         }
@@ -306,7 +329,7 @@ class Quadtree
         if (node.children[qdNew] == undefined)
             node.addChild(qdNew);
 
-        return this.addBody(x1, y1, mass, id, node.children[qdNew]);
+        return this.addBody(x1, y1, mass, force, id, node.children[qdNew]);
     }
 
     /**
@@ -386,8 +409,11 @@ class Quadtree
                             n1Elem.remove();
 
                         n2.totalMass += n1.totalMass;
+                        n2.force            = n2.force.sum(n1.force);
                         n2Elem.style.width  = n2.totalMass + "px";
                         n2Elem.style.height = n2.totalMass + "px";
+
+                        console.log("merged into " + n2.id);
 
                         node.children[i]           = undefined;
                         this.nodes[n1.numericID()] = undefined;
@@ -401,8 +427,11 @@ class Quadtree
                             n2Elem.remove();
 
                         n1.totalMass += n2.totalMass;
+                        n1.force            = n1.force.sum(n2.force);
                         n1Elem.style.width  = n1.totalMass + "px";
                         n1Elem.style.height = n1.totalMass + "px";
+
+                        console.log("merged into " + n1.id);
 
                         node.children[j]           = undefined;
                         this.nodes[n2.numericID()] = undefined;
@@ -424,13 +453,9 @@ class Quadtree
     /** Updates the position of each leaf node and rebuilds the quadtree. */
     rebuild(theta)
     {
-        for (var node of this.nodes) {
-            if (node != undefined) {
-                node.force.x = 0;
-                node.force.y = 0;
+        for (var node of this.nodes)
+            if (node != undefined)
                 this.calcForceV(node, this.root, theta);
-            }
-        }
 
         if (this.collide(this.root))
             return;
@@ -447,7 +472,7 @@ class Quadtree
             if (node != undefined) {
                 node.com.x += node.velocity(1).x;
                 node.com.y += node.velocity(1).y;
-                this.addBody(node.com.x, node.com.y, node.totalMass, node.id, this.root);
+                this.addBody(node.com.x, node.com.y, node.totalMass, node.force, node.id, this.root);
             }
         }
     }

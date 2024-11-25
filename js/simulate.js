@@ -1,4 +1,5 @@
-const FPS = 48;
+const FPS = 60;
+// const FPS = 5;
 
 let VW = window.innerWidth;
 let VH = window.innerHeight;
@@ -28,12 +29,12 @@ let   XOFFSET      = parseFloat (sidebarStyle.getPropertyValue("width"));
 const hitbox        = document.getElementById("hitbox");
 const bodyContainer = document.getElementById("body_container");
 
-const qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
+let qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 
 let mass = parseInt (massSlider.value);
 
 massSlider.oninput = function () {
-    massSliderOut.innerText = this.value;
+    massSliderVal.innerText = this.value;
     mass                    = parseInt (this.value);
 };
 
@@ -41,7 +42,7 @@ function addBody (e)
 {
     hidePopup ();
 
-    if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, "body" + cnt))
+    if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, new Vec (0, 0), "body" + cnt))
         return;
 
     bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
@@ -78,7 +79,7 @@ function toggleRun ()
         runButton.innerText = "Run";
         running             = false;
     } else {
-        iid                 = setInterval (runSim, FPS / 1000);
+        iid                 = setInterval (runSim, 1000 / FPS);
         runButton.innerText = "Stop";
         running             = true;
     }
@@ -89,6 +90,8 @@ function reset ()
     bodyContainer.innerHTML = "";
     running                 = true;
     toggleRun ();
+
+    qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 }
 
 hitbox.addEventListener("click", addBody);

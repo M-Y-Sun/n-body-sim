@@ -22,8 +22,8 @@ function showPopup (elem)
     vxSliderVal.innerText = vxSlider.value = qt.nodes[id].force.x.toFixed(1);
     vySliderVal.innerText = vySlider.value = qt.nodes[id].force.y.toFixed(1);
 
-    popup.style.top        = (parseInt (elem.style.top) + 50) + "px";
-    popup.style.left       = (parseInt (elem.style.left) - 90) + "px";
+    // popup.style.top        = (parseInt (elem.style.top) + 50) + "px";
+    // popup.style.left       = (parseInt (elem.style.left) - 90) + "px";
     popup.style.visibility = "visible";
 }
 
@@ -61,6 +61,14 @@ function hidePopup (e)
 {
     if (e == undefined || e.key == "Escape")
         popup.style.visibility = "hidden";
+}
+
+function togglePopup (elem)
+{
+    if (popup.style.visibility == "hidden")
+        showPopup (elem);
+    else
+        hidePopup ();
 }
 
 document.addEventListener ("keydown", hidePopup);

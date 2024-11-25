@@ -18,7 +18,7 @@ function _getBodyHTML (sz, x, y)
     left: ${x - sz / 2}px;
     top: ${y - sz / 2}px;
   "
-  onclick="showPopup(this);"
+  onclick="togglePopup(this);"
 ></div>
 `
 }

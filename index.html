@@ -43,8 +43,28 @@
           id="slider_theta"
         />
 
+        <br />
+
+        <label for="slider_mass">Default Mass:</label>
+        <label
+          for="slider_mass"
+          id="slider_mass_val"
+          style="font-family: monospace; margin-top: 8px"
+          >NULL</label
+        >
+        <input
+          type="range"
+          min="5"
+          max="50"
+          value="20"
+          step="1"
+          id="slider_mass"
+        />
+
+        <br />
+
         <button id="but_run" onclick="toggleRun();">Run</button>
-        <button id="but_reset">Reset</button>
+        <button id="but_reset" onclick="reset();">Reset</button>
       </div>
     </div>
   </body>

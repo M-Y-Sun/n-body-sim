@@ -1,9 +1,9 @@
+const FPS = 48;
+
 let VW = window.innerWidth;
 let VH = window.innerHeight;
 
 let cnt = 0;
-
-const colors = [ "red", "blue" ];
 
 function _getBodyHTML (sz, x, y)
 {
@@ -16,7 +16,6 @@ function _getBodyHTML (sz, x, y)
     height: ${sz}px;
     left: ${x - sz / 2}px;
     top: ${y - sz / 2}px;
-    background-color: ${colors[cnt % 2]};
   "
 ></div>
 `
@@ -29,10 +28,15 @@ const hitbox = document.getElementById("hitbox");
 
 const qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 
+let mass = parseInt (massSlider.value);
+
+massSlider.oninput = function () {
+    massSliderOut.innerText = this.value;
+    mass                    = parseInt (this.value);
+};
+
 function addBody (e)
 {
-    const mass = 20;
-
     if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, "body" + cnt))
         return;
 
@@ -70,10 +74,17 @@ function toggleRun ()
         runButton.innerText = "Run";
         running             = false;
     } else {
-        iid                 = setInterval (runSim, 34);
+        iid                 = setInterval (runSim, FPS / 1000);
         runButton.innerText = "Stop";
         running             = true;
     }
+}
+
+function reset ()
+{
+    hitbox.innerHTML = "";
+    running          = true;
+    toggleRun ();
 }
 
 hitbox.addEventListener("click", addBody);

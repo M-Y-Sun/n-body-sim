@@ -77,18 +77,24 @@ vySlider.oninput = function () {
 
 function hidePopup (e)
 {
-    if (e == undefined || e.key == "Escape")
+    if (e == undefined || e.key == "Escape") {
         popup.style.visibility = "hidden";
+        curElem.classList.remove("selected");
+    }
 }
 
 function togglePopup (elem)
 {
-    if (popup.style.visibility == "hidden")
+    if (popup.style.visibility == "hidden") {
+        elem.classList.add("selected");
         showPopup (elem);
-    else if (curElem != null && elem.id == curElem.id)
+    } else if (curElem != null && elem.id == curElem.id) {
         hidePopup ();
-    else
-        showPopup(elem);
+    } else {
+        curElem.classList.remove("selected");
+        elem.classList.add("selected");
+        showPopup (elem);
+    }
 }
 
 let dragging = false;

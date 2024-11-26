@@ -3,3 +3,7 @@ div.body {
     border-radius: 50%;
     position: absolute;
 }
+
+div.selected {
+    box-shadow: 0 0 8px 8px #bbbbbb88;
+}

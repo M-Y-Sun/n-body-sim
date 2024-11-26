@@ -104,11 +104,18 @@ function togglePopup (elem)
 
 function deleteBody ()
 {
-    qt.nodes[parseInt(curElem.id.slice(4))] = undefined;
+    const id = parseInt(curElem.id.slice(4));
+    qt.nodes[id] = undefined;
+
     popup.style.visibility = "hidden";
+
     curElem.classList.remove("selected");
     curElem.remove();
     curElem = null;
+
+    document.getElementById("arrow_line" + id).remove();
+    document.getElementById("arrow_head" + id).remove();
+    document.getElementById("path" + id).remove();
 }
 
 let dragging = false;

@@ -105,18 +105,20 @@ massSlider.oninput = function () {
 
 function addBody (e)
 {
-    hidePopup ();
+    if (popup.style.visibility == "hidden") {
+        if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, new Vec (0, 0), "body" + cnt))
+            return;
 
-    if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, new Vec (0, 0), "body" + cnt))
-        return;
+        bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
+        svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (cnt));
+        svgPaths.insertAdjacentHTML("beforeend", _getSVGPathHTML (cnt));
 
-    bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
-    svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (cnt));
-    svgPaths.insertAdjacentHTML("beforeend", _getSVGPathHTML (cnt));
+        console.log(qt);
 
-    console.log(qt);
-
-    ++cnt;
+        ++cnt;
+    } else if (svgArrows.style.display == "none") {
+        hidePopup ();
+    }
 }
 
 let frame = 0;

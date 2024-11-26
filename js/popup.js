@@ -57,7 +57,7 @@ vxSlider.oninput = function () {
     const node = qt.nodes[id];
     const offset = node.totalMass / 2;
     svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vxVal + offset},${
-                              node.com.y + -1 * mfac * (parseFloat (vySlider.value)) + offset}`);
+                              node.com.y + -mfac * (parseFloat (vySlider.value)) + offset}`);
 }
 
 vySlider.oninput = function () {
@@ -65,14 +65,14 @@ vySlider.oninput = function () {
     vySliderVal.innerText = vyVal.toFixed(1);
 
     const id = parseInt(curElem.id.slice(4));
-    qt.nodes[id].force.y = -1 * vyVal * qt.nodes[id].totalMass;
+    qt.nodes[id].force.y = -vyVal * qt.nodes[id].totalMass;
 
     const svg = document.getElementById("arrow_line" + id);
     const node = qt.nodes[id];
     const offset = node.totalMass / 2;
     svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${
                               node.com.x + mfac * (parseFloat (vxSlider.value))
-                              + offset},${node.com.y + -1 * mfac * vyVal + offset}`);
+                              + offset},${node.com.y + -mfac * vyVal + offset}`);
 }
 
 function hidePopup (e)
@@ -85,8 +85,41 @@ function togglePopup (elem)
 {
     if (popup.style.visibility == "hidden")
         showPopup (elem);
-    else
+    else if (curElem != null && elem.id == curElem.id)
         hidePopup ();
+    else
+        showPopup(elem);
 }
 
-document.addEventListener ("keydown", hidePopup);
+let dragging = false;
+
+function mouseDrag (e)
+{
+    if (dragging) {
+        const id             = parseInt (curElem.id.slice(4));
+        const node           = qt.nodes[id];
+        const offset         = node.totalMass / 2;
+        const x              = node.com.x + offset;
+        const y              = node.com.y + offset;
+        const lim            = 5 * mfac;
+        const vx             = Math.min(lim, Math.max(-lim, e.pageX - x));
+        const vy             = Math.min(lim, Math.max(-lim, e.pageY - y));
+        qt.nodes[id].force.x = vx * qt.nodes[id].totalMass / mfac;
+        qt.nodes[id].force.y = vy * qt.nodes[id].totalMass / mfac;
+        document.getElementById("arrow_line" + id).setAttribute("d", `M${x},${y} L${x + vx},${y + vy}`);
+    }
+}
+
+const hitbox = document.getElementById("hitbox");
+hitbox.addEventListener("mousemove", mouseDrag);
+
+hitbox.onmousedown = (e) => {
+    if (popup.style.visibility == "visible" && document.getElementById("svg_arrows").style.display == "block") {
+        dragging = true;
+        mouseDrag (e);
+    }
+};
+
+hitbox.onmouseup = () => { dragging = false; };
+
+document.addEventListener("keydown", hidePopup);

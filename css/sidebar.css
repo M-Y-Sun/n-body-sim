@@ -6,8 +6,11 @@
 #sidebar {
     display: block;
     position: absolute;
+
     width: 25vw;
+    min-width: 200px;
     height: 100%;
+
     background-color: var(--sbcolor);
     z-index: 1000;
 }
@@ -20,7 +23,7 @@
 #sidebar h6 {
     text-align: center;
     vertical-align: middle;
-    font-size: 3vw;
+    font-size: 28px;
 
     padding-left: 2vw;
     padding-right: 2vw;
@@ -60,7 +63,7 @@ div.toggle_container div input {
 }
 
 #popup {
-    visibility: hidden;
+    /* visibility: hidden is set in index.html so javascript can detect it */
 
     position: fixed;
     bottom: 0;

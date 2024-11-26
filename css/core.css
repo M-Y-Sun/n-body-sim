@@ -29,7 +29,6 @@ div.container {
 }
 
 #svg_container {
-    display: block;
     pointer-events: none;
     position: fixed;
     top: 0;
@@ -37,6 +36,8 @@ div.container {
 }
 
 #svg_container svg {
+    /* display: none is set in index.html for javascript access */
+
     position: fixed;
     top: 0;
     left: 0;

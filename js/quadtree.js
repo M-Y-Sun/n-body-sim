@@ -216,23 +216,15 @@ class Quadtree
      */
     #checkCollision(n1, n2)
     {
-        const n1v = n1.velocity(1);
-
-        if (n1v.norm() > maxVelocity) {
-            console.log("max velocity");
-            return true;
-        }
-
-        const n1sz = n1.totalMass / 2;
-        const n2sz = n2.totalMass / 2;
+        const n1v  = n1.velocity(1);
+        const n1sz = Math.cbrt(n1.totalMass) / 2;
+        const n2sz = Math.cbrt(n2.totalMass) / 2;
 
         if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz && n1.com.y <= n2.com.y + n2sz
             && n2.com.y <= n1.com.y + n1sz) {
             console.log("physical collision");
             return true;
         }
-
-        // return false;
 
         const new_n1x = n1.com.x + n1v.x;
 
@@ -244,15 +236,12 @@ class Quadtree
         const num = Math.abs(n1v.y * n2.com.x - n1v.x * n2.com.y + n1v.x * n1.com.y - n1v.y * n1.com.x);
         const den = n1v.norm();
 
-        // console.log(num / den);
-
         if (num / den < this.#VERR) {
             console.log("point to line");
             return true;
         }
 
         return false;
-        // return num / den < this.#VERR;
     }
 
     /**
@@ -294,8 +283,8 @@ class Quadtree
                 if (elemTarg != null) {
                     elemTarg.remove();
                     node.force            = node.force.sum(force);
-                    elemNode.style.width  = node.totalMass + "px";
-                    elemNode.style.height = node.totalMass + "px";
+                    elemNode.style.width  = (Math.cbrt(node.totalMass) * 10) + "px";
+                    elemNode.style.height = (Math.cbrt(node.totalMass) * 10) + "px";
                 }
 
                 return false;
@@ -410,8 +399,8 @@ class Quadtree
 
                         n2.totalMass += n1.totalMass;
                         n2.force            = n2.force.sum(n1.force);
-                        n2Elem.style.width  = n2.totalMass + "px";
-                        n2Elem.style.height = n2.totalMass + "px";
+                        n2Elem.style.width  = (Math.cbrt(n2.totalMass) * 10) + "px";
+                        n2Elem.style.height = (Math.cbrt(n2.totalMass) * 10) + "px";
 
                         console.log("merged into " + n2.id);
 
@@ -428,8 +417,8 @@ class Quadtree
 
                         n1.totalMass += n2.totalMass;
                         n1.force            = n1.force.sum(n2.force);
-                        n1Elem.style.width  = n1.totalMass + "px";
-                        n1Elem.style.height = n1.totalMass + "px";
+                        n1Elem.style.width  = (Math.cbrt(n1.totalMass) * 10) + "px";
+                        n1Elem.style.height = (Math.cbrt(n1.totalMass) * 10) + "px";
 
                         console.log("merged into " + n1.id);
 

@@ -48,7 +48,7 @@ function _getSVGArrowHTML (idx)
     const node   = qt.nodes[idx];
     const vx     = node.force.x / node.totalMass;
     const vy     = node.force.y / node.totalMass;
-    const offset = node.totalMass / 2;
+    const offset = Math.cbrt(node.totalMass) * 5; // width / 2
 
     return `
 <defs>
@@ -83,7 +83,7 @@ function _getSVGArrowHTML (idx)
 function _getSVGPathHTML (idx)
 {
     const node   = qt.nodes[idx];
-    const offset = node.totalMass / 2;
+    const offset = Math.cbrt(node.totalMass) * 5;
 
     return `
 <path
@@ -96,11 +96,11 @@ function _getSVGPathHTML (idx)
 `
 }
 
-let mass = parseInt (massSlider.value);
+let mass = Math.cbrt(parseInt (massSlider.value)) * 10;
 
 massSlider.oninput = function () {
     massSliderVal.innerText = this.value;
-    mass                    = parseInt (this.value);
+    mass                    = Math.cbrt(parseInt (this.value)) * 10;
 };
 
 function addBody (e)
@@ -141,7 +141,7 @@ function runSim ()
             if (frame % (FPS / samplesPerSec) == 0) {
                 const curpath = document.getElementById("path" + id);
                 const pathstr = curpath.getAttribute("d");
-                const offset  = node.totalMass / 2;
+                const offset  = Math.cbrt(node.totalMass) * 5;
                 curpath.setAttribute("d", pathstr + ` L${node.com.x + offset},${node.com.y + offset}`);
             }
         }

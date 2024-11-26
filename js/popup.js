@@ -16,7 +16,8 @@ function showPopup (elem)
 {
     curElem = elem;
 
-    curmassSlider.value = curmassSliderVal.innerText = elem.style.width.slice(0, -2);
+    curmassSlider.value = curmassSliderVal.innerText
+        = Math.round(Math.pow(parseFloat (elem.style.width.slice(0, -2)) / 10, 3)).toString();
 
     const id              = parseInt (elem.id.slice(4));
     const m               = qt.nodes[id].totalMass;
@@ -33,7 +34,7 @@ function showPopup (elem)
 curmassSlider.oninput = function () {
     curmassSliderVal.innerText = curmassSlider.value;
 
-    const slidernum            = parseInt (curmassSlider.value);
+    const slidernum            = Math.cbrt(parseInt (curmassSlider.value)) * 10;
     const id = parseInt(curElem.id.slice(4));
 
     qt.nodes[id].com.x = parseFloat (curElem.style.left) - (slidernum - parseFloat (curElem.style.width)) / 2;
@@ -42,8 +43,8 @@ curmassSlider.oninput = function () {
 
     curElem.style.left = qt.nodes[id].com.x + "px";
     curElem.style.top  = qt.nodes[id].com.y + "px";
-    curElem.style.width  = curmassSlider.value + "px";
-    curElem.style.height = curmassSlider.value + "px";
+    curElem.style.width  = (Math.cbrt(curmassSlider.value) * 10) + "px";
+    curElem.style.height = (Math.cbrt(curmassSlider.value) * 10) + "px";
 }
 
 const mfac = 32;
@@ -57,7 +58,7 @@ vxSlider.oninput = function () {
 
     const svg = document.getElementById("arrow_line" + id);
     const node = qt.nodes[id];
-    const offset = node.totalMass / 2;
+    const offset = Math.cbrt(node.totalMass) * 5;
     svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vxVal + offset},${
                               node.com.y + -mfac * (parseFloat (vySlider.value)) + offset}`);
 }
@@ -71,7 +72,7 @@ vySlider.oninput = function () {
 
     const svg = document.getElementById("arrow_line" + id);
     const node = qt.nodes[id];
-    const offset = node.totalMass / 2;
+    const offset = Math.cbrt(node.totalMass) * 5;
     svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${
                               node.com.x + mfac * (parseFloat (vxSlider.value))
                               + offset},${node.com.y + -mfac * vyVal + offset}`);
@@ -117,7 +118,7 @@ function mouseDrag (e)
     if (dragging) {
         const id             = parseInt (curElem.id.slice(4));
         const node           = qt.nodes[id];
-        const offset         = node.totalMass / 2;
+        const offset         = Math.cbrt(node.totalMass) * 5;
         const x              = node.com.x + offset;
         const y              = node.com.y + offset;
         const lim            = 5 * mfac;

@@ -61,24 +61,3 @@ div.toggle_container div label,
 div.toggle_container div input {
     display: inline !important;
 }
-
-#popup {
-    /* visibility: hidden is set in index.html so javascript can detect it */
-
-    position: fixed;
-    bottom: 0;
-    right: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    width: 200px;
-    height: 270px;
-    margin: 8px;
-
-    text-align: center;
-    border-radius: 6px;
-    background-color: var(--sbcolor);
-}

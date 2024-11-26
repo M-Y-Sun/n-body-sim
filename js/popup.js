@@ -26,6 +26,8 @@ function showPopup (elem)
     // popup.style.top        = (parseInt (elem.style.top) + 50) + "px";
     // popup.style.left       = (parseInt (elem.style.left) - 90) + "px";
     popup.style.visibility = "visible";
+
+    elem.classList.add("selected");
 }
 
 curmassSlider.oninput = function () {
@@ -79,22 +81,33 @@ function hidePopup (e)
 {
     if (e == undefined || e.key == "Escape") {
         popup.style.visibility = "hidden";
-        curElem.classList.remove("selected");
+        
+        if (curElem != null) {
+            curElem.classList.remove("selected");
+            curElem = null;
+        }
     }
 }
 
 function togglePopup (elem)
 {
     if (popup.style.visibility == "hidden") {
-        elem.classList.add("selected");
         showPopup (elem);
     } else if (curElem != null && elem.id == curElem.id) {
         hidePopup ();
     } else {
         curElem.classList.remove("selected");
-        elem.classList.add("selected");
         showPopup (elem);
     }
+}
+
+function deleteBody ()
+{
+    qt.nodes[parseInt(curElem.id.slice(4))] = undefined;
+    popup.style.visibility = "hidden";
+    curElem.classList.remove("selected");
+    curElem.remove();
+    curElem = null;
 }
 
 let dragging = false;

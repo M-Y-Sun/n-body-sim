@@ -48,3 +48,13 @@ div.container {
     /* changed by javascript */
     display: none;
 }
+
+div.colflex {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+div.colflex button {
+    margin: 0 12px;
+}

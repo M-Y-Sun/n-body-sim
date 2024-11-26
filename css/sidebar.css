@@ -13,6 +13,9 @@
 
     background-color: var(--sbcolor);
     z-index: 1000;
+
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 #sidebar h1,

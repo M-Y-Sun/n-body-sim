@@ -24,7 +24,11 @@
       <div id="sidebar" onclick="hidePopup();">
         <h1>N-Body Simulation</h1>
         <p>Click the display to add a body.</p>
-        <p>Click the body to show options to change mass and velocity.</p>
+        <p>
+          Click the body to show options to change mass and velocity. When
+          vectors are shown, click and drag the space around the selected body
+          to graphically set its.
+        </p>
         <p>
           <b>Note:</b> Enabling vectors and/or paths while running may cause
           additional CPU pressure. Your computer may consumer more power while
@@ -83,7 +87,6 @@
       </div>
     </div>
 
-    <div id="body_container"></div>
     <div id="svg_container">
       <svg
         height="100%"
@@ -98,6 +101,7 @@
         style="display: none"
       ></svg>
     </div>
+    <div id="body_container"></div>
 
     <div id="popup" style="visibility: hidden">
       <label for="slider_curmass">Mass (10<sup>6</sup> kg):</label>

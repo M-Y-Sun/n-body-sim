@@ -32,7 +32,7 @@ function showPopup (elem)
     vxSliderVal.innerText = vxSlider.value
         = (qt.nodes[id].force.x / m).toFixed(1);
     vySliderVal.innerText = vySlider.value
-        = (qt.nodes[id].force.y / m).toFixed(1);
+        = (-qt.nodes[id].force.y / m).toFixed(1);
 
     popup.style.visibility = "visible";
     elem.classList.add("selected");

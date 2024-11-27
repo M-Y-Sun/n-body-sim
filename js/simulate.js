@@ -1,5 +1,5 @@
 const FPS           = 60;
-const samplesPerSec = 10;
+const samplesPerSec = 20;
 
 let VW = window.innerWidth;
 let VH = window.innerHeight;
@@ -74,6 +74,7 @@ function _getSVGArrowHTML (idx)
   id="arrow_line${idx}"
   marker-end="url(#arrow_head${idx})"
   stroke-width="4"
+  fill="none"
   stroke="red"
   d="M${node.com.x + offset},${node.com.y + offset} L${
         node.com.x + mfac * vx + offset},${node.com.y + mfac * vy + offset}"
@@ -94,6 +95,7 @@ function _getSVGPathHTML (idx)
 <path
   id="path${idx}"
   stroke-width="4"
+  fill="none"
   stroke="blue"
   d="M${node.com.x + offset},${node.com.y + offset}"
 />

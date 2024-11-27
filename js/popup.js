@@ -137,7 +137,7 @@ const dragHitbox  = document.getElementById("drag_hitbox");
 const popupNormal = document.getElementById("popup_normal");
 const popupMove   = document.getElementById("popup_move");
 
-// Activates add body mode and changes the popup
+// activates add body mode and changes the popup
 editPosButton.onclick = () => {
     if (editingPos) {
         editingPos = false;
@@ -238,16 +238,21 @@ function togglePopup (elem)
 function mouseDrag (e)
 {
     if (draggingArrow) {
-        const id             = parseInt (curElem.id.slice(4));
-        const node           = qt.nodes[id];
-        const offset         = Math.cbrt(node.totalMass) * 5;
-        const x              = node.com.x + offset;
-        const y              = node.com.y + offset;
-        const lim            = 5 * mfac;
-        const vx             = Math.min(lim, Math.max(-lim, e.pageX - x));
-        const vy             = Math.min(lim, Math.max(-lim, e.pageY - y));
+        const id     = parseInt (curElem.id.slice(4));
+        const node   = qt.nodes[id];
+        const offset = Math.cbrt(node.totalMass) * 5;
+        const x      = node.com.x + offset;
+        const y      = node.com.y + offset;
+        const lim    = 5 * mfac;
+        const vx     = Math.min(lim, Math.max(-lim, e.pageX - x));
+        const vy     = Math.min(lim, Math.max(-lim, e.pageY - y));
+
+        vxSliderVal.innerText = vxSlider.value = (vx / mfac).toFixed(1);
+        vySliderVal.innerText = vySlider.value = (vy / mfac).toFixed(1);
+
         qt.nodes[id].force.x = vx * qt.nodes[id].totalMass / mfac;
         qt.nodes[id].force.y = vy * qt.nodes[id].totalMass / mfac;
+
         document.getElementById("arrow_line" + id)
             .setAttribute("d", `M${x},${y} L${x + vx},${y + vy}`);
     }

@@ -165,10 +165,16 @@ function toggleRun ()
         clearInterval (iid);
         runButton.innerText = "Run";
         running             = false;
+
+        hitbox.style.pointerEvents        = "auto";
+        bodyContainer.style.pointerEvents = "auto";
     } else {
         iid                 = setInterval (runSim, 1000 / FPS);
         runButton.innerText = "Stop";
         running             = true;
+
+        hitbox.style.pointerEvents        = "none";
+        bodyContainer.style.pointerEvents = "none";
     }
 }
 
@@ -184,7 +190,7 @@ function reset ()
     toggleRun ();
 }
 
-document.getElementById("hitbox").addEventListener("click", addBody);
+hitbox.addEventListener("click", addBody);
 document.getElementById("toggle_vec")
     .addEventListener("change", (e) => { svgArrows.style.display = e.currentTarget.checked ? "block" : "none"; })
 document.getElementById("toggle_path")

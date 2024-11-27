@@ -41,6 +41,11 @@ div.container {
     height: 100%;
 }
 
+#hitbox,
+#body_container {
+    pointer-events: auto;
+}
+
 #svg_container,
 #drag_hitbox {
     pointer-events: none;
@@ -61,15 +66,4 @@ div.container {
 #svg_paths {
     /* changed by javascript */
     display: none;
-}
-
-div.rowflex {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    flex-basis: 0;
-}
-
-div.rowflex button {
-    margin: 0 3px;
 }

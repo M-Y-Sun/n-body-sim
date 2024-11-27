@@ -166,7 +166,7 @@ class Quadtree
 {
     #G    = 6.6743015e1 / 4;
     #RLIM = 1 / 64;
-    #VERR = 0.5;
+    #VERR = 1;
 
     /**
      * Constructs a Quadtree.
@@ -276,16 +276,16 @@ class Quadtree
                 console.log("quadtree division");
 
                 node.totalMass += mass;
+                node.force = node.force.sum(force);
 
                 const elemTarg = document.getElementById(id);
                 const elemNode = document.getElementById(node.id);
 
-                if (elemTarg != null) {
+                elemNode.style.width  = (Math.cbrt(node.totalMass) * 10) + "px";
+                elemNode.style.height = (Math.cbrt(node.totalMass) * 10) + "px";
+
+                if (elemTarg != null)
                     elemTarg.remove();
-                    node.force            = node.force.sum(force);
-                    elemNode.style.width  = (Math.cbrt(node.totalMass) * 10) + "px";
-                    elemNode.style.height = (Math.cbrt(node.totalMass) * 10) + "px";
-                }
 
                 return false;
             } else {

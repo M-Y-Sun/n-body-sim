@@ -194,11 +194,8 @@ function togglePopup (elem)
     }
 }
 
-const hitbox = document.getElementById("hitbox");
-
-let draggingArrow = false;
-
-hitbox.onmousemove = (e) => {
+function mouseDrag (e)
+{
     if (draggingArrow) {
         const id             = parseInt (curElem.id.slice(4));
         const node           = qt.nodes[id];
@@ -213,6 +210,12 @@ hitbox.onmousemove = (e) => {
         document.getElementById("arrow_line" + id).setAttribute("d", `M${x},${y} L${x + vx},${y + vy}`);
     }
 }
+
+const hitbox = document.getElementById("hitbox");
+
+let draggingArrow = false;
+
+hitbox.addEventListener("mousemove", mouseDrag);
 
 hitbox.onmousedown = (e) => {
     if (popup.style.visibility == "visible" && document.getElementById("svg_arrows").style.display == "block") {

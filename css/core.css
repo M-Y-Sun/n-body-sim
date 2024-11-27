@@ -43,12 +43,15 @@ div.container {
 
 #hitbox,
 #body_container {
+    /* modified by js */
     pointer-events: auto;
 }
 
 #svg_container,
 #drag_hitbox {
+    /* modified by js */
     pointer-events: none;
+
     position: fixed;
     top: 0;
     left: 0;

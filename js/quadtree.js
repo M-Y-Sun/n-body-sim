@@ -1,5 +1,10 @@
 class Point
 {
+    /**
+     * Constructs a Point instance
+     * @param {number} x The x-coordinate.
+     * @param {number} y The y-coordinate.
+     */
     constructor(x, y)
     {
         this.x = x;
@@ -12,16 +17,18 @@ class Point
 
 class Vec extends Point
 {
+    /**
+     * Constructs a Vec instance
+     * @param {number} x The x-coordinate.
+     * @param {number} y The y-coordinate.
+     */
     constructor(x, y) { super (x, y); }
 
     /** @returns Clones a Vec instance. */
     clone() { return new Vec (this.x, this.y); }
 
-    /** @returns The square of the norm of the vector. */
-    normsq() { return this.x * this.x + this.y * this.y; }
-
     /** @returns The norm of the vector. */
-    norm() { return Math.sqrt(this.normsq()); }
+    norm() { return Math.sqrt(this.x * this.x + this.y * this.y); }
 
     /** Scales the vector by a constant. */
     scale(n)
@@ -51,14 +58,9 @@ class Vec extends Point
      * @returns The sum of two vectors.
      */
     sum(v) { return new Vec (this.x + v.x, this.y + v.y); }
-
-    /**
-     * @param {Vec} v The vector to dot with.
-     * @returns The dot product of two vectors;
-     */
-    dot(v) { return this.x * v.x + this.y + v.y; }
 }
 
+/** The maximum allowed velocity for each body. */
 const maxVelocity = 10;
 
 class QTNode
@@ -97,7 +99,7 @@ class QTNode
 
     /**
      * @param {number} qd The quadrant.
-     * @returns The new center.
+     * @returns The new center given a quadrant number and the current center.
      */
     getNewCenter(qd)
     {
@@ -132,6 +134,7 @@ class QTNode
         return true;
     }
 
+    /** @returns The numeric ID of a body. e.g. "body0" -> 0 */
     numericID() { return parseInt (this.id.slice(4)); }
 
     /** @returns The acceleration of the body or group of bodies. */
@@ -152,6 +155,9 @@ class QTNode
      * */
     velocity(t)
     {
+        // v = v_0 + at
+        // v_0 = 0 here
+
         let a = this.accel();
         a.scale(t);
 
@@ -164,8 +170,13 @@ class QTNode
 
 class Quadtree
 {
-    #G    = 6.6743015e1 / 4;
+    /** The scaled gravitational constant */
+    #G = 6.6743015e1 / 4;
+
+    /** The lower bound of an acceptable quadrant radius before declaring a collision. */
     #RLIM = 1 / 64;
+
+    /** The maximum path difference before declaring a collision. */
     #VERR = 1;
 
     /**
@@ -186,6 +197,12 @@ class Quadtree
      * @param {Point} center The center of the quadrant.
      * @param {Point} body The coordinates of the body.
      * @returns The quadrant number that the specified coordinate is in.
+     *
+     * Numbering uses cartesian quadrant numbers, minus 1 for indices.
+     * 0 is north east
+     * 1 is north west
+     * 2 is south west
+     * 3 is south east
      */
     #getQuadrant(center, body)
     {
@@ -216,16 +233,28 @@ class Quadtree
      */
     #checkCollision(n1, n2)
     {
+        // check physical collision
+
         const n1v  = n1.velocity(1);
         const n1sz = Math.cbrt(n1.totalMass) / 2;
         const n2sz = Math.cbrt(n2.totalMass) / 2;
 
+        // bound the x:
+        // n1 left < n2 right
+        // n1 right > n1 left
+        // bound the y:
+        // n1 top < n2 bottom
+        // n1 bottom > n1 top
+
         if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz && n1.com.y <= n2.com.y + n2sz
             && n2.com.y <= n1.com.y + n1sz) {
-            console.log("physical collision");
+            console.log("Physical collision");
             return true;
         }
 
+        // check if n2 is in the path of n1
+
+        // make sure the x-coordinate of n2 is within the norm of the velocity vector
         const new_n1x = n1.com.x + n1v.x;
 
         if (n2.com.x <= Math.min(n1.com.x, new_n1x) - this.#VERR
@@ -237,7 +266,7 @@ class Quadtree
         const den = n1v.norm();
 
         if (num / den < this.#VERR) {
-            console.log("point to line");
+            console.log("Point to line");
             return true;
         }
 
@@ -278,12 +307,15 @@ class Quadtree
                 node.totalMass += mass;
                 node.force = node.force.sum(force);
 
-                const elemTarg = document.getElementById(id);
                 const elemNode = document.getElementById(node.id);
 
                 elemNode.style.width  = (Math.cbrt(node.totalMass) * 10) + "px";
                 elemNode.style.height = (Math.cbrt(node.totalMass) * 10) + "px";
 
+                const elemTarg = document.getElementById(id);
+
+                // when first adding the body, it can cause the radius to be too small, so in that case there's nothing
+                // to remove
                 if (elemTarg != null)
                     elemTarg.remove();
 
@@ -303,11 +335,12 @@ class Quadtree
             }
         }
 
+        // center of mass is a weighted average
         node.com.x = (node.com.x * node.totalMass + x1 * mass) / (node.totalMass + mass);
         node.com.y = (node.com.y * node.totalMass + y1 * mass) / (node.totalMass + mass);
         node.totalMass += mass;
 
-        // if the current node is an empty leaf
+        // if the current node is an empty leaf, place the body there
         if (node != this.root && node.isLeaf() && node.id == null) {
             node.id    = id;
             node.force = force;
@@ -315,6 +348,7 @@ class Quadtree
             return true;
         }
 
+        // create a new node if it doesn't exist before recursing there
         if (node.children[qdNew] == undefined)
             node.addChild(qdNew);
 
@@ -340,19 +374,8 @@ class Quadtree
         if (node.isLeaf() || s / d < theta) {
             let   v     = new Vec (node.com.x - targ.com.x, node.com.y - targ.com.y);
             const fmagn = this.#forceFunc(targ.totalMass, node.totalMass, v.norm());
-
-            // console.log(`Normalize vector <${v.x}, ${v.y}> to ${fmagn}.`)
-
             v.normalize(fmagn);
-
             targ.force = targ.force.sum(v);
-
-            // console.log("force:")
-            // console.log(targ.force);
-            // console.log("\nacceleration:")
-            // console.log(targ.accel());
-            // console.log("\nvelocity at t=1:")
-            // console.log(targ.velocity(1));
 
             return;
         }
@@ -402,7 +425,7 @@ class Quadtree
                         n2Elem.style.width  = (Math.cbrt(n2.totalMass) * 10) + "px";
                         n2Elem.style.height = (Math.cbrt(n2.totalMass) * 10) + "px";
 
-                        console.log("merged into " + n2.id);
+                        console.log(n1.id + " merged into " + n2.id);
 
                         node.children[i]           = undefined;
                         this.nodes[n1.numericID()] = undefined;
@@ -420,7 +443,7 @@ class Quadtree
                         n1Elem.style.width  = (Math.cbrt(n1.totalMass) * 10) + "px";
                         n1Elem.style.height = (Math.cbrt(n1.totalMass) * 10) + "px";
 
-                        console.log("merged into " + n1.id);
+                        console.log(n2.id + " merged into " + n1.id);
 
                         node.children[j]           = undefined;
                         this.nodes[n2.numericID()] = undefined;
@@ -439,18 +462,26 @@ class Quadtree
                 return this.collide(chd);
     }
 
-    /** Updates the position of each leaf node and rebuilds the quadtree. */
+    /**
+     * Updates the position of each leaf node and rebuilds the quadtree.
+     * @param {number} theta The Barnes-Hut threshold value representing the acceptability of approximating a group of
+     *     bodies with their center of mass.
+     */
     rebuild(theta)
     {
         for (var node of this.nodes)
             if (node != undefined)
                 this.calcForceV(node, this.root, theta);
 
+        // recalculate if there were collisions
         if (this.collide(this.root))
             return;
 
         this.root = new QTNode (this.root.center, this.root.radius);
         let nodes = [];
+
+        // don't do the following since it only creates a shallow copy
+        // let nodes = [..this.nodes];
 
         for (var node of this.nodes)
             nodes.push(node);

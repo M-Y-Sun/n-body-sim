@@ -12,10 +12,15 @@ vySliderVal.innerText      = parseFloat (vySlider.value).toFixed(1);
 const popup   = document.getElementById("popup");
 let   curElem = null;
 
+/**
+ * Shows the popup from selecting the specified element and indicates that element as selected.
+ * @param {HTMLElement} elem The selected element.
+ */
 function showPopup (elem)
 {
     curElem = elem;
 
+    // width = cbrt(mass) * 10 => mass = (width / 10)^3
     curmassSlider.value = curmassSliderVal.innerText
         = Math.round(Math.pow(parseFloat (elem.style.width.slice(0, -2)) / 10, 3)).toString();
 
@@ -24,10 +29,7 @@ function showPopup (elem)
     vxSliderVal.innerText = vxSlider.value = (qt.nodes[id].force.x / m).toFixed(1);
     vySliderVal.innerText = vySlider.value = (qt.nodes[id].force.y / m).toFixed(1);
 
-    // popup.style.top        = (parseInt (elem.style.top) + 50) + "px";
-    // popup.style.left       = (parseInt (elem.style.left) - 90) + "px";
     popup.style.visibility = "visible";
-
     elem.classList.add("selected");
 }
 
@@ -47,6 +49,7 @@ curmassSlider.oninput = function () {
     curElem.style.height = (Math.cbrt(curmassSlider.value) * 10) + "px";
 }
 
+/** The amount to scale the velocity vector in the display */
 const mfac = 32;
 
 vxSlider.oninput = function () {
@@ -81,6 +84,10 @@ vySlider.oninput = function () {
 const editPosButton = document.getElementById("but_edit_pos");
 let editingPos = false;
 
+/**
+ * Hides the popup and resets it for the next selection
+ * @param {KeyboardEvent} e An HTML keyboard event. Triggers the function if the escape key is pressed.
+ */
 function hidePopup (e)
 {
     if (e == undefined || e.key == "Escape") {
@@ -98,6 +105,7 @@ function hidePopup (e)
     }
 }
 
+/** Deletes a body. */
 function deleteBody ()
 {
     const id     = parseInt (curElem.id.slice(4));
@@ -118,6 +126,7 @@ const dragHitbox  = document.getElementById("drag_hitbox");
 const popupNormal = document.getElementById("popup_normal");
 const popupMove   = document.getElementById("popup_move");
 
+// Activates add body mode and changes the popup
 editPosButton.onclick = () => {
     if (editingPos) {
         editingPos = false;
@@ -136,6 +145,7 @@ editPosButton.onclick = () => {
 
 let draggingBody = false;
 
+/** Starts the body drag gesture. */
 function bodyStartDrag ()
 {
     if (popup.style.visibility == "visible" && editingPos) {
@@ -144,6 +154,7 @@ function bodyStartDrag ()
     }
 }
 
+/** Ends the body drag gesture. */
 function bodyEndDrag (elem)
 {
     if (!editingPos) {
@@ -154,6 +165,10 @@ function bodyEndDrag (elem)
     }
 }
 
+/**
+ * Updates the position of the selected body when it is being moved.
+ * @param {PointerEvent} e An HTML pointer event to track the position of the mouse.
+ */
 function bodyDrag (e)
 {
     if (draggingBody) {
@@ -170,18 +185,21 @@ function bodyDrag (e)
 
 dragHitbox.addEventListener("mousemove", bodyDrag);
 
+/** Changes the cursor to grab when hovering over a body in move body mode. */
 function bodyOnHover ()
 {
     if (!draggingBody && editingPos)
         document.body.style.cursor = "grab";
 }
 
+/** Restores the cursor to normal when not hovering over a body in move body mode. */
 function bodyLeaveHover ()
 {
     if (!draggingBody && editingPos)
         document.body.style.cursor = "default";
 }
 
+/** Toggles the display of a popup and updates the selected element accordingly. */
 function togglePopup (elem)
 {
     if (popup.style.visibility == "hidden") {
@@ -194,6 +212,10 @@ function togglePopup (elem)
     }
 }
 
+/**
+ * Updates the velocity vector when updating it graphically.
+ * @param {PointerEvent} e An HTML ponter event to track the position of the mouse.
+ */
 function mouseDrag (e)
 {
     if (draggingArrow) {
@@ -217,6 +239,7 @@ let draggingArrow = false;
 
 hitbox.addEventListener("mousemove", mouseDrag);
 
+// Starts the arrow dragging
 hitbox.onmousedown = (e) => {
     if (popup.style.visibility == "visible" && document.getElementById("svg_arrows").style.display == "block") {
         draggingArrow = true;

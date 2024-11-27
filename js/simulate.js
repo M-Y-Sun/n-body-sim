@@ -43,7 +43,8 @@ function _getBodyHTML (sz, x, y)
 }
 
 /**
- * Code of <defs> element is from https://stackoverflow.com/a/60714330 (arrow head).
+ * Code of <defs> element for the arrow head by Cagri Tacyildiz and Bumhan Yu from
+ * https://stackoverflow.com/a/60714330.
  * @param {number} idx The index.
  * @returns HTML that goes inside an SVG element representing an arrow.
  */
@@ -72,7 +73,6 @@ function _getSVGArrowHTML (idx)
   id="arrow_line${idx}"
   marker-end="url(#arrow_head${idx})"
   stroke-width="4"
-  fill="none"
   stroke="red"
   d="M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vx + offset},${
         node.com.y + mfac * vy + offset}"
@@ -93,13 +93,13 @@ function _getSVGPathHTML (idx)
 <path
   id="path${idx}"
   stroke-width="4"
-  fill="none"
   stroke="blue"
   d="M${node.com.x + offset},${node.com.y + offset}"
 />
 `
 }
 
+/** The diameter of the node. d = cbrt(mass) and * 10 for visual purposes */
 let nodesz = Math.cbrt(parseInt (massSlider.value)) * 10;
 
 massSlider.oninput = function () {
@@ -107,6 +107,10 @@ massSlider.oninput = function () {
     nodesz                  = Math.cbrt(parseInt (this.value)) * 10;
 };
 
+/**
+ * Adds a body to the display
+ * @param {PointerEvent} e An HTML pointer event to detect the mouse position
+ */
 function addBody (e)
 {
     if (popup.style.visibility == "hidden") {
@@ -126,8 +130,10 @@ function addBody (e)
     }
 }
 
+/** Frame counter mod 256 to have a unique samples per second and fps */
 let frame = 0;
 
+/** Runs the simulation and updates SVG graphics accordingly. */
 function runSim ()
 {
     svgArrows.innerHTML = "";
@@ -159,6 +165,7 @@ const runButton = document.getElementById("but_run");
 let   running   = false;
 let   iid       = -1;
 
+/** Toggles the run button. */
 function toggleRun ()
 {
     if (running) {
@@ -178,6 +185,7 @@ function toggleRun ()
     }
 }
 
+/** Resets the simulation by clearing the display. */
 function reset ()
 {
     bodyContainer.innerHTML = "";

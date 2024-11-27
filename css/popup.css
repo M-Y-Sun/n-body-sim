@@ -1,5 +1,6 @@
 #popup {
     /* visibility: hidden is set in index.html so javascript can detect it */
+
     display: flex;
     flex-direction: column;
 
@@ -20,12 +21,12 @@
 
 #popup>div {
     /* display flex/none is set in index.html for javascript access */
+
     align-items: center;
     justify-content: center;
     flex-direction: column;
 
     height: 100%;
-    /* width: 100%; */
 }
 
 div.button_container {

@@ -7,6 +7,7 @@
     height: 100%;
 
     background-color: var(--sbcolor);
+
     z-index: 1000;
 
     overflow-x: hidden;

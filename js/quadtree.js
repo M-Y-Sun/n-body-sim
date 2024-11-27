@@ -119,10 +119,15 @@ class QTNode
     }
 
     /**
-     * Adds a child to the current QTNode and sets the center and radius of the node.
+     * Adds a child to the current QTNode and sets the center and radius of the
+     * node.
      * @param {number} qd The quadrant to insert the child to.
      */
-    addChild(qd) { this.children[qd] = new QTNode (this.getNewCenter(qd), this.radius / 2); }
+    addChild(qd)
+    {
+        this.children[qd]
+            = new QTNode (this.getNewCenter(qd), this.radius / 2);
+    }
 
     /** @returns If the QTNode represents a leaf node. */
     isLeaf()
@@ -151,7 +156,8 @@ class QTNode
 
     /**
      * @param {number} t The time to calculate on.
-     * @returns The velocity vector of the body or group of bodies after a certain time.
+     * @returns The velocity vector of the body or group of bodies after a
+     *     certain time.
      * */
     velocity(t)
     {
@@ -173,7 +179,10 @@ class Quadtree
     /** The scaled gravitational constant */
     #G = 6.6743015e1 / 4;
 
-    /** The lower bound of an acceptable quadrant radius before declaring a collision. */
+    /**
+     * The lower bound of an acceptable quadrant radius before declaring a
+     * collision.
+     */
     #RLIM = 1 / 64;
 
     /** The maximum path difference before declaring a collision. */
@@ -190,7 +199,8 @@ class Quadtree
         this.root  = new QTNode (new Point (x, y), size / 2);
         this.nodes = [];
 
-        console.log(`Constructed Quadtree with center (${x}, ${y}) and size ${size}.`);
+        console.log(
+            `Constructed Quadtree with center (${x}, ${y}) and size ${size}.`);
     }
 
     /**
@@ -246,15 +256,16 @@ class Quadtree
         // n1 top < n2 bottom
         // n1 bottom > n1 top
 
-        if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz && n1.com.y <= n2.com.y + n2sz
-            && n2.com.y <= n1.com.y + n1sz) {
+        if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz
+            && n1.com.y <= n2.com.y + n2sz && n2.com.y <= n1.com.y + n1sz) {
             console.log("Physical collision");
             return true;
         }
 
         // check if n2 is in the path of n1
 
-        // make sure the x-coordinate of n2 is within the norm of the velocity vector
+        // make sure the x-coordinate of n2 is within the norm of the velocity
+        // vector
         const new_n1x = n1.com.x + n1v.x;
 
         if (n2.com.x <= Math.min(n1.com.x, new_n1x) - this.#VERR
@@ -262,7 +273,8 @@ class Quadtree
             return false;
 
         // point to line distance formula
-        const num = Math.abs(n1v.y * n2.com.x - n1v.x * n2.com.y + n1v.x * n1.com.y - n1v.y * n1.com.x);
+        const num = Math.abs(n1v.y * n2.com.x - n1v.x * n2.com.y
+                             + n1v.x * n1.com.y - n1v.y * n1.com.x);
         const den = n1v.norm();
 
         if (num / den < this.#VERR) {
@@ -300,7 +312,8 @@ class Quadtree
         const qdNew = this.#getQuadrant(node.center, new Point (x1, y1));
 
         if (node != this.root && node.isLeaf() && node.id != null) {
-            // if the radius is too small, implying that the bodies are super close together, merge them
+            // if the radius is too small, implying that the bodies are super
+            // close together, merge them
             if (node.radius <= this.#RLIM) {
                 console.log("quadtree division");
 
@@ -309,24 +322,27 @@ class Quadtree
 
                 const elemNode = document.getElementById(node.id);
 
-                elemNode.style.width  = (Math.cbrt(node.totalMass) * 10) + "px";
-                elemNode.style.height = (Math.cbrt(node.totalMass) * 10) + "px";
+                elemNode.style.width = (Math.cbrt(node.totalMass) * 10) + "px";
+                elemNode.style.height
+                    = (Math.cbrt(node.totalMass) * 10) + "px";
 
                 const elemTarg = document.getElementById(id);
 
-                // when first adding the body, it can cause the radius to be too small, so in that case there's nothing
-                // to remove
+                // when first adding the body, it can cause the radius to be
+                // too small, so in that case there's nothing to remove
                 if (elemTarg != null)
                     elemTarg.remove();
 
                 return false;
             } else {
-                // if the current node is a leaf node representing a single body, slice the quadrant and move the node
+                // if the current node is a leaf node representing a single
+                // body, slice the quadrant and move the node
                 node.children[qdOld]           = node.clone();
                 node.children[qdOld].center    = node.getNewCenter(qdOld);
                 node.children[qdOld].radius    = node.radius / 2;
                 node.children[qdOld].totalMass = node.totalMass;
-                node.children[qdOld].children  = [ undefined, undefined, undefined, undefined ];
+                node.children[qdOld].children =
+                    [ undefined, undefined, undefined, undefined ];
 
                 this.updNode(node.children[qdOld]);
 
@@ -336,8 +352,10 @@ class Quadtree
         }
 
         // center of mass is a weighted average
-        node.com.x = (node.com.x * node.totalMass + x1 * mass) / (node.totalMass + mass);
-        node.com.y = (node.com.y * node.totalMass + y1 * mass) / (node.totalMass + mass);
+        node.com.x = (node.com.x * node.totalMass + x1 * mass)
+                     / (node.totalMass + mass);
+        node.com.y = (node.com.y * node.totalMass + y1 * mass)
+                     / (node.totalMass + mass);
         node.totalMass += mass;
 
         // if the current node is an empty leaf, place the body there
@@ -369,11 +387,13 @@ class Quadtree
             return;
 
         const s = 2 * node.radius;
-        const d = Math.sqrt(Math.pow(targ.com.x - node.com.x, 2) + Math.pow(targ.com.y - node.com.y, 2));
+        const d = Math.sqrt(Math.pow(targ.com.x - node.com.x, 2)
+                            + Math.pow(targ.com.y - node.com.y, 2));
 
         if (node.isLeaf() || s / d < theta) {
-            let   v     = new Vec (node.com.x - targ.com.x, node.com.y - targ.com.y);
-            const fmagn = this.#forceFunc(targ.totalMass, node.totalMass, v.norm());
+            let v = new Vec (node.com.x - targ.com.x, node.com.y - targ.com.y);
+            const fmagn
+                = this.#forceFunc(targ.totalMass, node.totalMass, v.norm());
             v.normalize(fmagn);
             targ.force = targ.force.sum(v);
 
@@ -421,9 +441,11 @@ class Quadtree
                             n1Elem.remove();
 
                         n2.totalMass += n1.totalMass;
-                        n2.force            = n2.force.sum(n1.force);
-                        n2Elem.style.width  = (Math.cbrt(n2.totalMass) * 10) + "px";
-                        n2Elem.style.height = (Math.cbrt(n2.totalMass) * 10) + "px";
+                        n2.force = n2.force.sum(n1.force);
+                        n2Elem.style.width
+                            = (Math.cbrt(n2.totalMass) * 10) + "px";
+                        n2Elem.style.height
+                            = (Math.cbrt(n2.totalMass) * 10) + "px";
 
                         console.log(n1.id + " merged into " + n2.id);
 
@@ -439,9 +461,11 @@ class Quadtree
                             n2Elem.remove();
 
                         n1.totalMass += n2.totalMass;
-                        n1.force            = n1.force.sum(n2.force);
-                        n1Elem.style.width  = (Math.cbrt(n1.totalMass) * 10) + "px";
-                        n1Elem.style.height = (Math.cbrt(n1.totalMass) * 10) + "px";
+                        n1.force = n1.force.sum(n2.force);
+                        n1Elem.style.width
+                            = (Math.cbrt(n1.totalMass) * 10) + "px";
+                        n1Elem.style.height
+                            = (Math.cbrt(n1.totalMass) * 10) + "px";
 
                         console.log(n2.id + " merged into " + n1.id);
 
@@ -464,8 +488,9 @@ class Quadtree
 
     /**
      * Updates the position of each leaf node and rebuilds the quadtree.
-     * @param {number} theta The Barnes-Hut threshold value representing the acceptability of approximating a group of
-     *     bodies with their center of mass.
+     * @param {number} theta The Barnes-Hut threshold value representing the
+     *     acceptability of approximating a group of bodies with their center
+     *     of mass.
      */
     rebuild(theta)
     {
@@ -492,7 +517,8 @@ class Quadtree
             if (node != undefined) {
                 node.com.x += node.velocity(1).x;
                 node.com.y += node.velocity(1).y;
-                this.addBody(node.com.x, node.com.y, node.totalMass, node.force, node.id, this.root);
+                this.addBody(node.com.x, node.com.y, node.totalMass,
+                             node.force, node.id, this.root);
             }
         }
     }

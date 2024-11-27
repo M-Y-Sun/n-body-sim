@@ -13,7 +13,8 @@ const popup   = document.getElementById("popup");
 let   curElem = null;
 
 /**
- * Shows the popup from selecting the specified element and indicates that element as selected.
+ * Shows the popup from selecting the specified element and indicates that
+ * element as selected.
  * @param {HTMLElement} elem The selected element.
  */
 function showPopup (elem)
@@ -22,12 +23,16 @@ function showPopup (elem)
 
     // width = cbrt(mass) * 10 => mass = (width / 10)^3
     curmassSlider.value = curmassSliderVal.innerText
-        = Math.round(Math.pow(parseFloat (elem.style.width.slice(0, -2)) / 10, 3)).toString();
+        = Math.round(
+                  Math.pow(parseFloat (elem.style.width.slice(0, -2)) / 10, 3))
+              .toString();
 
     const id              = parseInt (elem.id.slice(4));
     const m               = qt.nodes[id].totalMass;
-    vxSliderVal.innerText = vxSlider.value = (qt.nodes[id].force.x / m).toFixed(1);
-    vySliderVal.innerText = vySlider.value = (qt.nodes[id].force.y / m).toFixed(1);
+    vxSliderVal.innerText = vxSlider.value
+        = (qt.nodes[id].force.x / m).toFixed(1);
+    vySliderVal.innerText = vySlider.value
+        = (qt.nodes[id].force.y / m).toFixed(1);
 
     popup.style.visibility = "visible";
     elem.classList.add("selected");
@@ -36,15 +41,17 @@ function showPopup (elem)
 curmassSlider.oninput = function () {
     curmassSliderVal.innerText = curmassSlider.value;
 
-    const slidernum            = Math.cbrt(parseInt (curmassSlider.value)) * 10;
-    const id = parseInt(curElem.id.slice(4));
+    const slidernum = Math.cbrt(parseInt (curmassSlider.value)) * 10;
+    const id        = parseInt (curElem.id.slice(4));
 
-    qt.nodes[id].com.x = parseFloat (curElem.style.left) - (slidernum - parseFloat (curElem.style.width)) / 2;
-    qt.nodes[id].com.y = parseFloat (curElem.style.top) - (slidernum - parseFloat (curElem.style.height)) / 2;
+    qt.nodes[id].com.x = parseFloat (curElem.style.left)
+                         - (slidernum - parseFloat (curElem.style.width)) / 2;
+    qt.nodes[id].com.y = parseFloat (curElem.style.top)
+                         - (slidernum - parseFloat (curElem.style.height)) / 2;
     qt.nodes[id].totalMass = parseInt (curmassSlider.value);
 
-    curElem.style.left = qt.nodes[id].com.x + "px";
-    curElem.style.top  = qt.nodes[id].com.y + "px";
+    curElem.style.left   = qt.nodes[id].com.x + "px";
+    curElem.style.top    = qt.nodes[id].com.y + "px";
     curElem.style.width  = (Math.cbrt(curmassSlider.value) * 10) + "px";
     curElem.style.height = (Math.cbrt(curmassSlider.value) * 10) + "px";
 }
@@ -53,17 +60,20 @@ curmassSlider.oninput = function () {
 const mfac = 32;
 
 vxSlider.oninput = function () {
-    const vxVal = parseFloat(vxSlider.value);
+    const vxVal           = parseFloat (vxSlider.value);
     vxSliderVal.innerText = vxVal.toFixed(1);
 
-    const id = parseInt(curElem.id.slice(4));
+    const id             = parseInt (curElem.id.slice(4));
     qt.nodes[id].force.x = vxVal * qt.nodes[id].totalMass;
 
-    const svg = document.getElementById("arrow_line" + id);
-    const node = qt.nodes[id];
+    const svg    = document.getElementById("arrow_line" + id);
+    const node   = qt.nodes[id];
     const offset = Math.cbrt(node.totalMass) * 5;
-    svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vxVal + offset},${
-                              node.com.y + -mfac * (parseFloat (vySlider.value)) + offset}`);
+    svg.setAttribute("d", `M${node.com.x + offset},${node.com.y + offset} L${
+                              node.com.x + mfac * vxVal + offset},${
+                              node.com.y
+                              + -mfac * (parseFloat (vySlider.value))
+                              + offset}`);
 }
 
 vySlider.oninput = function () {
@@ -86,7 +96,8 @@ let editingPos = false;
 
 /**
  * Hides the popup and resets it for the next selection
- * @param {KeyboardEvent} e An HTML keyboard event. Triggers the function if the escape key is pressed.
+ * @param {KeyboardEvent} e An HTML keyboard event. Triggers the function if
+ *     the escape key is pressed.
  */
 function hidePopup (e)
 {
@@ -167,7 +178,8 @@ function bodyEndDrag (elem)
 
 /**
  * Updates the position of the selected body when it is being moved.
- * @param {PointerEvent} e An HTML pointer event to track the position of the mouse.
+ * @param {PointerEvent} e An HTML pointer event to track the position of the
+ *     mouse.
  */
 function bodyDrag (e)
 {
@@ -192,14 +204,20 @@ function bodyOnHover ()
         document.body.style.cursor = "grab";
 }
 
-/** Restores the cursor to normal when not hovering over a body in move body mode. */
+/**
+ * Restores the cursor to normal when not hovering over a body in move body
+ * mode.
+ */
 function bodyLeaveHover ()
 {
     if (!draggingBody && editingPos)
         document.body.style.cursor = "default";
 }
 
-/** Toggles the display of a popup and updates the selected element accordingly. */
+/**
+ * Toggles the display of a popup and updates the selected element
+ * accordingly.
+ */
 function togglePopup (elem)
 {
     if (popup.style.visibility == "hidden") {
@@ -214,7 +232,8 @@ function togglePopup (elem)
 
 /**
  * Updates the velocity vector when updating it graphically.
- * @param {PointerEvent} e An HTML ponter event to track the position of the mouse.
+ * @param {PointerEvent} e An HTML ponter event to track the position of the
+ *     mouse.
  */
 function mouseDrag (e)
 {
@@ -229,7 +248,8 @@ function mouseDrag (e)
         const vy             = Math.min(lim, Math.max(-lim, e.pageY - y));
         qt.nodes[id].force.x = vx * qt.nodes[id].totalMass / mfac;
         qt.nodes[id].force.y = vy * qt.nodes[id].totalMass / mfac;
-        document.getElementById("arrow_line" + id).setAttribute("d", `M${x},${y} L${x + vx},${y + vy}`);
+        document.getElementById("arrow_line" + id)
+            .setAttribute("d", `M${x},${y} L${x + vx},${y + vy}`);
     }
 }
 
@@ -241,7 +261,8 @@ hitbox.addEventListener("mousemove", mouseDrag);
 
 // Starts the arrow dragging
 hitbox.onmousedown = (e) => {
-    if (popup.style.visibility == "visible" && document.getElementById("svg_arrows").style.display == "block") {
+    if (popup.style.visibility == "visible"
+        && document.getElementById("svg_arrows").style.display == "block") {
         draggingArrow = true;
         mouseDrag (e);
     }

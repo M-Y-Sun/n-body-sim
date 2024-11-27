@@ -6,8 +6,9 @@ let VH = window.innerHeight;
 
 let cnt = 0;
 
-const sidebarStyle = window.getComputedStyle(document.getElementById("sidebar"));
-let   XOFFSET      = parseFloat (sidebarStyle.getPropertyValue("width"));
+const sidebarStyle
+    = window.getComputedStyle(document.getElementById("sidebar"));
+let XOFFSET = parseFloat (sidebarStyle.getPropertyValue("width"));
 
 const bodyContainer = document.getElementById("body_container");
 const svgArrows     = document.getElementById("svg_arrows");
@@ -43,8 +44,8 @@ function _getBodyHTML (sz, x, y)
 }
 
 /**
- * Code of <defs> element for the arrow head by Cagri Tacyildiz and Bumhan Yu from
- * https://stackoverflow.com/a/60714330.
+ * Code of <defs> element for the arrow head by Cagri Tacyildiz and Bumhan Yu
+ * from https://stackoverflow.com/a/60714330.
  * @param {number} idx The index.
  * @returns HTML that goes inside an SVG element representing an arrow.
  */
@@ -74,8 +75,8 @@ function _getSVGArrowHTML (idx)
   marker-end="url(#arrow_head${idx})"
   stroke-width="4"
   stroke="red"
-  d="M${node.com.x + offset},${node.com.y + offset} L${node.com.x + mfac * vx + offset},${
-        node.com.y + mfac * vy + offset}"
+  d="M${node.com.x + offset},${node.com.y + offset} L${
+        node.com.x + mfac * vx + offset},${node.com.y + mfac * vy + offset}"
 />
 `
 }
@@ -114,11 +115,13 @@ massSlider.oninput = function () {
 function addBody (e)
 {
     if (popup.style.visibility == "hidden") {
-        if (!qt.addBody(e.pageX - nodesz / 2, e.pageY - nodesz / 2, parseInt (massSlider.value), new Vec (0, 0),
+        if (!qt.addBody(e.pageX - nodesz / 2, e.pageY - nodesz / 2,
+                        parseInt (massSlider.value), new Vec (0, 0),
                         "body" + cnt))
             return;
 
-        bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (nodesz, e.pageX, e.pageY));
+        bodyContainer.insertAdjacentHTML(
+            "beforeend", _getBodyHTML (nodesz, e.pageX, e.pageY));
         svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (cnt));
         svgPaths.insertAdjacentHTML("beforeend", _getSVGPathHTML (cnt));
 
@@ -153,7 +156,10 @@ function runSim ()
                 const curpath = document.getElementById("path" + id);
                 const pathstr = curpath.getAttribute("d");
                 const offset  = Math.cbrt(node.totalMass) * 5;
-                curpath.setAttribute("d", pathstr + ` L${node.com.x + offset},${node.com.y + offset}`);
+                curpath.setAttribute(
+                    "d",
+                    pathstr
+                        + ` L${node.com.x + offset},${node.com.y + offset}`);
             }
         }
     }
@@ -199,7 +205,9 @@ function reset ()
 }
 
 hitbox.addEventListener("click", addBody);
-document.getElementById("toggle_vec")
-    .addEventListener("change", (e) => { svgArrows.style.display = e.currentTarget.checked ? "block" : "none"; })
-document.getElementById("toggle_path")
-    .addEventListener("change", (e) => { svgPaths.style.display = e.currentTarget.checked ? "block" : "none"; })
+document.getElementById("toggle_vec").addEventListener("change", (e) => {
+    svgArrows.style.display = e.currentTarget.checked ? "block" : "none";
+})
+document.getElementById("toggle_path").addEventListener("change", (e) => {
+    svgPaths.style.display = e.currentTarget.checked ? "block" : "none";
+})

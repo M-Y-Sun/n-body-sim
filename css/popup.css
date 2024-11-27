@@ -1,20 +1,44 @@
 #popup {
     /* visibility: hidden is set in index.html so javascript can detect it */
+    display: flex;
+    flex-direction: column;
 
     position: fixed;
     bottom: 0;
     right: 0;
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-
-    width: 200px;
+    width: 220px;
     height: 320px;
-    margin: 8px;
+
+    padding: 20px;
+    margin: 20px;
 
     text-align: center;
     border-radius: 6px;
     background-color: var(--sbcolor);
+}
+
+#popup>div {
+    /* display flex/none is set in index.html for javascript access */
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 100%;
+    /* width: 100%; */
+}
+
+div.button_container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-basis: 0;
+}
+
+div.button_container button {
+    margin: 0 3px;
+}
+
+#popup_move p {
+    margin: 0 5px;
 }

@@ -59,7 +59,7 @@ class Vec extends Point
     dot(v) { return this.x * v.x + this.y + v.y; }
 }
 
-const maxVelocity = 12;
+const maxVelocity = 10;
 
 class QTNode
 {
@@ -165,7 +165,7 @@ class QTNode
 class Quadtree
 {
     #G    = 6.6743015e1 / 4;
-    #RLIM = 0.25;
+    #RLIM = 1 / 64;
     #VERR = 0.5;
 
     /**

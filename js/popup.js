@@ -78,16 +78,108 @@ vySlider.oninput = function () {
                               + offset},${node.com.y + -mfac * vyVal + offset}`);
 }
 
+const editPosButton = document.getElementById("but_edit_pos");
+let editingPos = false;
+
 function hidePopup (e)
 {
     if (e == undefined || e.key == "Escape") {
         popup.style.visibility = "hidden";
-        
+
         if (curElem != null) {
             curElem.classList.remove("selected");
             curElem = null;
+
+            editingPos                = false;
+            popupMove.style.display   = "none";
+            popupNormal.style.display = "flex";
+            editPosButton.innerText   = "Edit Position";
         }
     }
+}
+
+function deleteBody ()
+{
+    const id     = parseInt (curElem.id.slice(4));
+    qt.nodes[id] = undefined;
+
+    popup.style.visibility = "hidden";
+
+    curElem.classList.remove("selected");
+    curElem.remove();
+    curElem = null;
+
+    document.getElementById("arrow_line" + id).remove();
+    document.getElementById("arrow_head" + id).remove();
+    document.getElementById("path" + id).remove();
+}
+
+const dragHitbox  = document.getElementById("drag_hitbox");
+const popupNormal = document.getElementById("popup_normal");
+const popupMove   = document.getElementById("popup_move");
+
+editPosButton.onclick = () => {
+    if (editingPos) {
+        editingPos = false;
+        dragHitbox.style.pointerEvents = "none";
+        popupMove.style.display = "none";
+        popupNormal.style.display = "flex";
+        editPosButton.innerText = "Edit Position";
+    } else {
+        editingPos = true;
+        dragHitbox.style.pointerEvents = "auto";
+        popupMove.style.display = "flex";
+        popupNormal.style.display = "none";
+        editPosButton.innerText = "Finish";
+    }
+}
+
+let draggingBody = false;
+
+function bodyStartDrag ()
+{
+    if (popup.style.visibility == "visible" && editingPos) {
+        draggingBody               = true;
+        document.body.style.cursor = "grabbing";
+    }
+}
+
+function bodyEndDrag (elem)
+{
+    if (!editingPos) {
+        togglePopup (elem);
+    } else {
+        draggingBody               = false;
+        document.body.style.cursor = "grab";
+    }
+}
+
+function bodyDrag (e)
+{
+    if (draggingBody) {
+        const id           = parseInt (curElem.id.slice(4));
+        const offset       = Math.cbrt(qt.nodes[id].totalMass) * 5;
+        const x            = e.pageX - offset;
+        const y            = e.pageY - offset;
+        qt.nodes[id].com.x = x;
+        qt.nodes[id].com.y = y;
+        curElem.style.left = x + "px";
+        curElem.style.top  = y + "px";
+    }
+}
+
+dragHitbox.addEventListener("mousemove", bodyDrag);
+
+function bodyOnHover ()
+{
+    if (!draggingBody && editingPos)
+        document.body.style.cursor = "grab";
+}
+
+function bodyLeaveHover ()
+{
+    if (!draggingBody && editingPos)
+        document.body.style.cursor = "default";
 }
 
 function togglePopup (elem)
@@ -102,27 +194,12 @@ function togglePopup (elem)
     }
 }
 
-function deleteBody ()
-{
-    const id = parseInt(curElem.id.slice(4));
-    qt.nodes[id] = undefined;
+const hitbox = document.getElementById("hitbox");
 
-    popup.style.visibility = "hidden";
+let draggingArrow = false;
 
-    curElem.classList.remove("selected");
-    curElem.remove();
-    curElem = null;
-
-    document.getElementById("arrow_line" + id).remove();
-    document.getElementById("arrow_head" + id).remove();
-    document.getElementById("path" + id).remove();
-}
-
-let dragging = false;
-
-function mouseDrag (e)
-{
-    if (dragging) {
+hitbox.onmousemove = (e) => {
+    if (draggingArrow) {
         const id             = parseInt (curElem.id.slice(4));
         const node           = qt.nodes[id];
         const offset         = Math.cbrt(node.totalMass) * 5;
@@ -137,16 +214,13 @@ function mouseDrag (e)
     }
 }
 
-const hitbox = document.getElementById("hitbox");
-hitbox.addEventListener("mousemove", mouseDrag);
-
 hitbox.onmousedown = (e) => {
     if (popup.style.visibility == "visible" && document.getElementById("svg_arrows").style.display == "block") {
-        dragging = true;
+        draggingArrow = true;
         mouseDrag (e);
     }
 };
 
-hitbox.onmouseup = () => { dragging = false; };
+hitbox.onmouseup = () => { draggingArrow = false; };
 
 document.addEventListener("keydown", hidePopup);

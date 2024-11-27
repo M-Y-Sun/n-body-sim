@@ -1,15 +1,27 @@
+:root {
+    --sbcolor: #cccccc;
+    --fontsize: 14px
+}
+
 html,
 body {
     margin: 0;
     width: 100%;
     height: 100%;
     overflow: hidden;
+
+    cursor: default;
 }
 
 body {
     background-color: black;
     font-family: verdana;
     padding: 0px;
+}
+
+p,
+label {
+    font-size: var(--fontsize);
 }
 
 div.container {
@@ -20,6 +32,7 @@ div.container {
 }
 
 #hitbox,
+#drag_hitbox,
 #body_container,
 #svg_container {
     display: block;
@@ -28,7 +41,8 @@ div.container {
     height: 100%;
 }
 
-#svg_container {
+#svg_container,
+#drag_hitbox {
     pointer-events: none;
     position: fixed;
     top: 0;
@@ -49,12 +63,13 @@ div.container {
     display: none;
 }
 
-div.colflex {
+div.rowflex {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    flex-basis: 0;
 }
 
-div.colflex button {
-    margin: 0 12px;
+div.rowflex button {
+    margin: 0 3px;
 }

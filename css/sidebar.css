@@ -1,8 +1,3 @@
-:root {
-    --sbcolor: #cccccc;
-    --fontsize: 14px
-}
-
 #sidebar {
     display: block;
     position: absolute;
@@ -32,7 +27,6 @@
 }
 
 #sidebar p {
-    font-size: var(--fontsize);
     margin: 20px 2vw;
 }
 
@@ -40,7 +34,6 @@
 #popup label {
     display: block;
     text-align: center;
-    font-size: var(--fontsize);
 }
 
 #sidebar button,
@@ -59,7 +52,7 @@ div.toggle_container {
     margin: 20px 0;
 }
 
-div.toggle_container div label,
-div.toggle_container div input {
+div.toggle_container label,
+div.toggle_container input {
     display: inline !important;
 }

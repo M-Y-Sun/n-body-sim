@@ -30,6 +30,10 @@
           graphically set its velocity.
         </p>
         <p>
+          Bodies can be moved or deleted with their respective buttons on the
+          selection popup.
+        </p>
+        <p>
           Decreasing the &theta; value yields a smoother and more accurate
           simulation.
         </p>
@@ -88,6 +92,8 @@
 
         <button id="but_run" onclick="toggleRun();">Run</button>
         <button id="but_reset" onclick="reset();">Reset</button>
+
+        <br />
       </div>
     </div>
 
@@ -105,66 +111,72 @@
         style="display: none"
       ></svg>
     </div>
+    <div id="drag_hitbox"></div>
     <div id="body_container"></div>
 
     <div id="popup" style="visibility: hidden">
-      <label for="slider_curmass">Mass (10<sup>6</sup> kg):</label>
-      <label
-        for="slider_curmass"
-        id="slider_curmass_val"
-        style="font-family: monospace; margin-top: 8px"
-        >NULL</label
-      >
-      <input
-        type="range"
-        min="5"
-        max="100"
-        value="20"
-        step="1"
-        id="slider_curmass"
-      />
+      <div id="popup_normal" style="display: flex">
+        <label for="slider_curmass">Mass (10<sup>6</sup> kg):</label>
+        <label
+          for="slider_curmass"
+          id="slider_curmass_val"
+          style="font-family: monospace; margin-top: 8px"
+          >NULL</label
+        >
+        <input
+          type="range"
+          min="5"
+          max="100"
+          value="20"
+          step="1"
+          id="slider_curmass"
+        />
 
-      <br />
+        <br />
 
-      <label for="slider_vx">Velocity X (m/s):</label>
-      <label
-        for="slider_vx"
-        id="slider_vx_val"
-        style="font-family: monospace; margin-top: 8px"
-        >NULL</label
-      >
-      <input
-        type="range"
-        min="-5"
-        max="5"
-        value="0"
-        step="0.1"
-        id="slider_vx"
-      />
+        <label for="slider_vx">Velocity X (m/s):</label>
+        <label
+          for="slider_vx"
+          id="slider_vx_val"
+          style="font-family: monospace; margin-top: 8px"
+          >NULL</label
+        >
+        <input
+          type="range"
+          min="-5"
+          max="5"
+          value="0"
+          step="0.1"
+          id="slider_vx"
+        />
 
-      <br />
+        <br />
 
-      <label for="slider_vy">Velocity Y (m/s):</label>
-      <label
-        for="slider_vy"
-        id="slider_vy_val"
-        style="font-family: monospace; margin-top: 8px"
-        >NULL</label
-      >
-      <input
-        type="range"
-        min="-5"
-        max="5"
-        value="0"
-        step="0.1"
-        id="slider_vy"
-      />
-
-      <br />
-
-      <div class="colflex">
-        <button onclick="hidePopup();">Done</button>
+        <label for="slider_vy">Velocity Y (m/s):</label>
+        <label
+          for="slider_vy"
+          id="slider_vy_val"
+          style="font-family: monospace; margin-top: 8px"
+          >NULL</label
+        >
+        <input
+          type="range"
+          min="-5"
+          max="5"
+          value="0"
+          step="0.1"
+          id="slider_vy"
+        />
+      </div>
+      <div id="popup_move" style="display: none">
+        <p>Drag the selected body to change its position.</p>
+        <br />
+        <p>Click "Finish" when you are done.</p>
+      </div>
+      <div class="button_container" style="flex-direction: row">
         <button onclick="deleteBody();" style="color: red">Delete</button>
+        <button id="but_edit_pos">Edit Position</button>
+        <button onclick="hidePopup();">Done</button>
       </div>
     </div>
   </body>

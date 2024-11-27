@@ -33,7 +33,11 @@ function _getBodyHTML (sz, x, y)
     left: ${x - sz / 2}px;
     top: ${y - sz / 2}px;
   "
-  onclick="togglePopup(this);"
+  onmousedown="bodyStartDrag();"
+  onmousemove="bodyDrag(event);"
+  onmouseup="bodyEndDrag(this);"
+  onmouseover="bodyOnHover();"
+  onmouseout="bodyLeaveHover();"
 ></div>
 `
 }
@@ -96,20 +100,21 @@ function _getSVGPathHTML (idx)
 `
 }
 
-let mass = Math.cbrt(parseInt (massSlider.value)) * 10;
+let nodesz = Math.cbrt(parseInt (massSlider.value)) * 10;
 
 massSlider.oninput = function () {
     massSliderVal.innerText = this.value;
-    mass                    = Math.cbrt(parseInt (this.value)) * 10;
+    nodesz                  = Math.cbrt(parseInt (this.value)) * 10;
 };
 
 function addBody (e)
 {
     if (popup.style.visibility == "hidden") {
-        if (!qt.addBody(e.pageX - mass / 2, e.pageY - mass / 2, mass, new Vec (0, 0), "body" + cnt))
+        if (!qt.addBody(e.pageX - nodesz / 2, e.pageY - nodesz / 2, parseInt (massSlider.value), new Vec (0, 0),
+                        "body" + cnt))
             return;
 
-        bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (mass, e.pageX, e.pageY));
+        bodyContainer.insertAdjacentHTML("beforeend", _getBodyHTML (nodesz, e.pageX, e.pageY));
         svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (cnt));
         svgPaths.insertAdjacentHTML("beforeend", _getSVGPathHTML (cnt));
 

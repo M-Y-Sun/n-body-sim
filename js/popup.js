@@ -1,16 +1,9 @@
-const curmassSlider    = document.getElementById("slider_curmass");
-const vxSlider         = document.getElementById("slider_vx");
-const vySlider         = document.getElementById("slider_vy");
-const curmassSliderVal = document.getElementById("slider_curmass_val");
-const vxSliderVal      = document.getElementById("slider_vx_val");
-const vySliderVal      = document.getElementById("slider_vy_val");
-
 curmassSliderVal.innerText = curmassSlider.value;
 vxSliderVal.innerText      = parseFloat (vxSlider.value).toFixed(1);
 vySliderVal.innerText      = parseFloat (vySlider.value).toFixed(1);
 
-const popup   = document.getElementById("popup");
-let   curElem = null;
+let curElem    = null;
+let prevVecDsp = svgArrows.style.display;
 
 /**
  * Shows the popup from selecting the specified element and indicates that
@@ -36,6 +29,8 @@ function showPopup (elem)
 
     popup.style.visibility = "visible";
     elem.classList.add("selected");
+    prevVecDsp              = svgArrows.style.display;
+    svgArrows.style.display = "block";
 }
 
 curmassSlider.oninput = function () {
@@ -91,7 +86,6 @@ vySlider.oninput = function () {
                               + offset},${node.com.y + -mfac * vyVal + offset}`);
 }
 
-const editPosButton = document.getElementById("but_edit_pos");
 let editingPos = false;
 
 /**
@@ -112,6 +106,7 @@ function hidePopup (e)
             popupMove.style.display   = "none";
             popupNormal.style.display = "flex";
             editPosButton.innerText   = "Edit Position";
+            svgArrows.style.display   = prevVecDsp;
         }
     }
 }
@@ -132,10 +127,6 @@ function deleteBody ()
     document.getElementById("arrow_head" + id).remove();
     document.getElementById("path" + id).remove();
 }
-
-const dragHitbox  = document.getElementById("drag_hitbox");
-const popupNormal = document.getElementById("popup_normal");
-const popupMove   = document.getElementById("popup_move");
 
 // activates add body mode and changes the popup
 editPosButton.onclick = () => {
@@ -258,16 +249,13 @@ function mouseDrag (e)
     }
 }
 
-const hitbox = document.getElementById("hitbox");
-
 let draggingArrow = false;
 
 hitbox.addEventListener("mousemove", mouseDrag);
 
 // Starts the arrow dragging
 hitbox.onmousedown = (e) => {
-    if (popup.style.visibility == "visible"
-        && document.getElementById("svg_arrows").style.display == "block") {
+    if (popup.style.visibility == "visible") {
         draggingArrow = true;
         mouseDrag (e);
     }

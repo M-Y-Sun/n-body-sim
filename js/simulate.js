@@ -1,20 +1,7 @@
-const FPS           = 60;
+const FPS           = 30;
 const samplesPerSec = 20;
 
-let VW = window.innerWidth;
-let VH = window.innerHeight;
-
 let cnt = 0;
-
-const sidebarStyle
-    = window.getComputedStyle(document.getElementById("sidebar"));
-let XOFFSET = parseFloat (sidebarStyle.getPropertyValue("width"));
-
-const bodyContainer = document.getElementById("body_container");
-const svgArrows     = document.getElementById("svg_arrows");
-const svgPaths      = document.getElementById("svg_paths");
-
-let qt = new Quadtree ((XOFFSET + VW) / 2, VH / 2, Math.max(VW - XOFFSET, VH));
 
 /**
  * @param {number} x The x-coordinate of the body.
@@ -130,8 +117,6 @@ function addBody (e)
         console.log(qt);
 
         ++cnt;
-    } else if (svgArrows.style.display == "none") {
-        hidePopup ();
     }
 }
 
@@ -143,7 +128,7 @@ function runSim ()
 {
     svgArrows.innerHTML = "";
 
-    qt.rebuild(parseFloat (thetaSlider.value));
+    qt.rebuild(parseFloat (thetaSlider.value), true);
 
     for (var node of qt.nodes) {
         if (node != undefined) {
@@ -169,9 +154,8 @@ function runSim ()
     frame = (frame + 1) % 256;
 }
 
-const runButton = document.getElementById("but_run");
-let   running   = false;
-let   iid       = -1;
+let running = false;
+let iid     = -1;
 
 /** Toggles the run button. */
 function toggleRun ()
@@ -207,9 +191,11 @@ function reset ()
 }
 
 hitbox.addEventListener("click", addBody);
-document.getElementById("toggle_vec").addEventListener("change", (e) => {
+
+vecToggle.addEventListener("change", (e) => {
     svgArrows.style.display = e.currentTarget.checked ? "block" : "none";
 })
-document.getElementById("toggle_path").addEventListener("change", (e) => {
+
+pathToggle.addEventListener("change", (e) => {
     svgPaths.style.display = e.currentTarget.checked ? "block" : "none";
 })

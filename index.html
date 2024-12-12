@@ -12,8 +12,9 @@
     <link rel="stylesheet" href="./css/popup.css" />
     <link rel="stylesheet" href="./css/body.css" />
 
-    <script defer src="./js/sidebar.js"></script>
     <script defer src="./js/quadtree.js"></script>
+    <script defer src="./js/globals.js"></script>
+    <script defer src="./js/sidebar.js"></script>
     <script defer src="./js/popup.js"></script>
     <script defer src="./js/simulate.js"></script>
   </head>
@@ -23,27 +24,6 @@
       <div id="hitbox"></div>
       <div id="sidebar" onclick="hidePopup();">
         <h1>N-Body Simulation</h1>
-        <p>Click the display to add a body.</p>
-        <p>
-          Click the body to show options to edit the body. When vectors are
-          shown, click and drag the space around the selected body to
-          graphically set its velocity.
-        </p>
-        <p>
-          Bodies can be moved or deleted with their respective buttons on the
-          selection popup.
-        </p>
-        <p>
-          Decreasing the &theta; value yields a smoother and more accurate
-          simulation.
-        </p>
-        <p>
-          <b>Note:</b> Enabling vectors and/or paths while running may cause
-          additional CPU pressure. Your computer may consumer more power while
-          these graphics are enabled.
-        </p>
-
-        <br />
 
         <label for="slider_theta">Accuracy (&theta; value):</label>
         <label
@@ -92,6 +72,28 @@
 
         <button id="but_run" onclick="toggleRun();">Run</button>
         <button id="but_reset" onclick="reset();">Reset</button>
+
+        <br />
+
+        <p>Click the display to add a body.</p>
+        <p>
+          Click the body to show options to edit the body. When vectors are
+          shown, click and drag the space around the selected body to
+          graphically set its velocity.
+        </p>
+        <p>
+          Bodies can be moved or deleted with their respective buttons on the
+          selection popup.
+        </p>
+        <p>
+          Decreasing the &theta; value yields a smoother and more accurate
+          simulation.
+        </p>
+        <p>
+          <b>Note:</b> Enabling vectors and/or paths while running may cause
+          additional CPU pressure. Your computer may consumer more power while
+          these graphics are enabled.
+        </p>
 
         <br />
       </div>

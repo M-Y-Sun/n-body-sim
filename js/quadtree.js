@@ -142,6 +142,13 @@ class QTNode
     /** @returns The numeric ID of a body. e.g. "body0" -> 0 */
     numericID() { return parseInt (this.id.slice(4)); }
 
+    /** @param {QTNode} other The other node */
+    distTo(other)
+    {
+        return Math.sqrt(Math.pow(this.com.x - other.com.x, 2)
+                         + Math.pow(this.com.y - other.com.y, 2));
+    }
+
     /** @returns The acceleration of the body or group of bodies. */
     accel()
     {
@@ -177,7 +184,7 @@ class QTNode
 class Quadtree
 {
     /** The scaled gravitational constant */
-    #G = 6.6743015e1 / 4;
+    #G = 6.6743015e1;
 
     /**
      * The lower bound of an acceptable quadrant radius before declaring a
@@ -186,7 +193,7 @@ class Quadtree
     #RLIM = 1 / 64;
 
     /** The maximum path difference before declaring a collision. */
-    #VERR = 1;
+    // #VERR = 32;
 
     /**
      * Constructs a Quadtree.
@@ -245,10 +252,15 @@ class Quadtree
     {
         // check physical collision
 
-        const n1v  = n1.velocity(1);
-        const n1sz = Math.cbrt(n1.totalMass) / 2;
-        const n2sz = Math.cbrt(n2.totalMass) / 2;
+        const n1sz = Math.cbrt(n1.totalMass) * 5;
+        const n2sz = Math.cbrt(n2.totalMass) * 5;
 
+        if (n1sz + n2sz > n1.distTo(n2)) {
+            console.log("Physical collision");
+            return true;
+        }
+
+        /*
         // bound the x:
         // n1 left < n2 right
         // n1 right > n1 left
@@ -257,19 +269,22 @@ class Quadtree
         // n1 bottom > n1 top
 
         if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz
-            && n1.com.y <= n2.com.y + n2sz && n2.com.y <= n1.com.y + n1sz) {
-            console.log("Physical collision");
-            return true;
+            && n1.com.y <= n2.com.y + n2sz && n2.com.y <= n1.com.y +
+        n1sz) { console.log("Physical collision"); return true;
         }
+        */
+
+        /*
+        const n1v  = n1.velocity(1);
 
         // check if n2 is in the path of n1
 
-        // make sure the x-coordinate of n2 is within the norm of the velocity
-        // vector
+        // make sure the x-coordinate of n2 is within the norm of the
+        // velocity vector
         const new_n1x = n1.com.x + n1v.x;
 
-        if (n2.com.x <= Math.min(n1.com.x, new_n1x) - this.#VERR
-            || n2.com.x >= Math.max(n1.com.x, new_n1x) + this.#VERR)
+        if (n2.com.x <= Math.min(n1.com.x, new_n1x) - n2sz - this.#VERR
+            || n2.com.x >= Math.max(n1.com.x, new_n1x) + n2sz + this.#VERR)
             return false;
 
         // point to line distance formula
@@ -277,10 +292,11 @@ class Quadtree
                              + n1v.x * n1.com.y - n1v.y * n1.com.x);
         const den = n1v.norm();
 
-        if (num / den < this.#VERR) {
+        if (num / den < this.#VERR + n2sz) {
             console.log("Point to line");
             return true;
         }
+        */
 
         return false;
     }
@@ -375,11 +391,9 @@ class Quadtree
 
     /**
      * Recursively calculates the net force vector acted on a specified body.
-     * @param {number} x The x-coordinate of the body.
-     * @param {number} y The y-coordinate of the body.
-     * @param {number} theta The permitted error.
      * @param {QTNode} targ The node to calculate on.
      * @param {QTNode} node The node to recurse on.
+     * @param {number} theta The permitted error.
      */
     calcForceV(targ, node, theta)
     {
@@ -387,13 +401,11 @@ class Quadtree
             return;
 
         const s = 2 * node.radius;
-        const d = Math.sqrt(Math.pow(targ.com.x - node.com.x, 2)
-                            + Math.pow(targ.com.y - node.com.y, 2));
+        const d = targ.distTo(node);
 
         if (node.isLeaf() || s / d < theta) {
             let v = new Vec (node.com.x - targ.com.x, node.com.y - targ.com.y);
-            const fmagn
-                = this.#forceFunc(targ.totalMass, node.totalMass, v.norm());
+            const fmagn = this.#forceFunc(targ.totalMass, node.totalMass, d);
             v.normalize(fmagn);
             targ.force = targ.force.sum(v);
 
@@ -454,9 +466,7 @@ class Quadtree
 
                         ret = true;
                         continue;
-                    }
-
-                    if (this.#checkCollision(n2, n1)) {
+                    } else if (this.#checkCollision(n2, n1)) {
                         if (n2Elem != null)
                             n2Elem.remove();
 
@@ -481,9 +491,11 @@ class Quadtree
             return ret;
         }
 
-        for (var chd of node.children)
-            if (chd != undefined && !chd.isLeaf())
+        for (var chd of node.children) {
+            if (chd != undefined && !chd.isLeaf()) {
                 return this.collide(chd);
+            }
+        }
     }
 
     /**
@@ -491,16 +503,21 @@ class Quadtree
      * @param {number} theta The Barnes-Hut threshold value representing the
      *     acceptability of approximating a group of bodies with their center
      *     of mass.
+     * @param {boolean} check
      */
-    rebuild(theta)
+    rebuild(theta, check)
     {
-        for (var node of this.nodes)
-            if (node != undefined)
+        for (var node of this.nodes) {
+            if (node != undefined) {
                 this.calcForceV(node, this.root, theta);
+            }
+        }
 
         // recalculate if there were collisions
-        if (this.collide(this.root))
+        if (check && this.collide(this.root)) {
+            this.rebuild(theta, false);
             return;
+        }
 
         this.root = new QTNode (this.root.center, this.root.radius);
         let nodes = [];

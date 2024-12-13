@@ -102,7 +102,9 @@ function hidePopup (e)
             curElem.classList.remove("selected");
             curElem = null;
 
-            editingPos                = false;
+            editingPos                     = false;
+            dragHitbox.style.pointerEvents = "none";
+
             popupMove.style.display   = "none";
             popupNormal.style.display = "flex";
             editPosButton.innerText   = "Edit Position";
@@ -118,6 +120,9 @@ function deleteBody ()
     qt.nodes[id] = undefined;
 
     popup.style.visibility = "hidden";
+
+    editingPos                     = false;
+    dragHitbox.style.pointerEvents = "none";
 
     curElem.classList.remove("selected");
     curElem.remove();

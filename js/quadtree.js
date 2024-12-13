@@ -169,13 +169,13 @@ class QTNode
     velocity(t)
     {
         // v = v_0 + at
-        // v_0 = 0 here
+        // v_0 = 0 here so v = at
 
         let a = this.accel();
         a.scale(t);
 
         if (a.norm() > maxVelocity)
-            a.normalize(maxVelocity + 1);
+            a.normalize(maxVelocity);
 
         return a;
     }
@@ -184,7 +184,8 @@ class QTNode
 class Quadtree
 {
     /** The scaled gravitational constant */
-    #G = 6.6743015e1;
+    #G    = 6.6743015e1 / 2;
+    #Gfac = 1;
 
     /**
      * The lower bound of an acceptable quadrant radius before declaring a
@@ -240,7 +241,7 @@ class Quadtree
         if (r == 0)
             return 0;
 
-        return this.#G * m1 * m2 / (r * r);
+        return this.#G * this.#Gfac * m1 * m2 / (r * r);
     }
 
     /**
@@ -250,56 +251,16 @@ class Quadtree
      */
     #checkCollision(n1, n2)
     {
-        // check physical collision
-
         const n1sz = Math.cbrt(n1.totalMass) * 5;
         const n2sz = Math.cbrt(n2.totalMass) * 5;
-
-        if (n1sz + n2sz > n1.distTo(n2)) {
-            console.log("Physical collision");
-            return true;
-        }
-
-        /*
-        // bound the x:
-        // n1 left < n2 right
-        // n1 right > n1 left
-        // bound the y:
-        // n1 top < n2 bottom
-        // n1 bottom > n1 top
-
-        if (n1.com.x <= n2.com.x + n2sz && n2.com.x <= n1.com.x + n1sz
-            && n1.com.y <= n2.com.y + n2sz && n2.com.y <= n1.com.y +
-        n1sz) { console.log("Physical collision"); return true;
-        }
-        */
-
-        /*
-        const n1v  = n1.velocity(1);
-
-        // check if n2 is in the path of n1
-
-        // make sure the x-coordinate of n2 is within the norm of the
-        // velocity vector
-        const new_n1x = n1.com.x + n1v.x;
-
-        if (n2.com.x <= Math.min(n1.com.x, new_n1x) - n2sz - this.#VERR
-            || n2.com.x >= Math.max(n1.com.x, new_n1x) + n2sz + this.#VERR)
-            return false;
-
-        // point to line distance formula
-        const num = Math.abs(n1v.y * n2.com.x - n1v.x * n2.com.y
-                             + n1v.x * n1.com.y - n1v.y * n1.com.x);
-        const den = n1v.norm();
-
-        if (num / den < this.#VERR + n2sz) {
-            console.log("Point to line");
-            return true;
-        }
-        */
-
-        return false;
+        return n1sz + n2sz > n1.distTo(n2);
     }
+
+    /**
+     * Scales the gravitational constant G by a certain value
+     * @param {number} k The scale factor from 0 to 20
+     */
+    setGFac(k) { this.#Gfac = k; }
 
     /**
      * Adds a node to the this.nodes array
@@ -404,6 +365,18 @@ class Quadtree
         const d = targ.distTo(node);
 
         if (node.isLeaf() || s / d < theta) {
+            // console.log(d);
+            // console.log("------")
+            // console.log(targ.id);
+            // console.log(targ.com)
+            // console.log(targ.force);
+            // console.log("------")
+            // console.log(node.id);
+            // console.log(node.com);
+            // console.log(node.force);
+            // console.log("------")
+            // console.log("============")
+
             let v = new Vec (node.com.x - targ.com.x, node.com.y - targ.com.y);
             const fmagn = this.#forceFunc(targ.totalMass, node.totalMass, d);
             v.normalize(fmagn);
@@ -418,84 +391,74 @@ class Quadtree
     }
 
     /**
+     * Recursively checks for collisions of a node with all leaf nodes under a
+     * node
+     * @param {QTNode} targ The target node to collide.
+     * @param {QTNode} node The current node to recurse.
+     * @param {boolean} done If the node has collided.
+     * @returns If a collision happened.
+     */
+    collide_(targ, node, done)
+    {
+        if (done)
+            return true;
+
+        var i = 0;
+        for (var chd of node.children) {
+            if (chd == undefined || chd.id == targ.id) {
+                ++i;
+                continue;
+            }
+
+            if (chd.isLeaf()) {
+                const targElem  = document.getElementById(targ.id);
+                const otherElem = document.getElementById(chd.id);
+
+                if (this.#checkCollision(targ, chd)) {
+                    if (otherElem != null)
+                        otherElem.remove();
+
+                    targ.totalMass += chd.totalMass;
+                    targ.force           = targ.force.sum(chd.force);
+                    targElem.style.width = targElem.style.height
+                        = (Math.cbrt(targ.totalMass) * 10) + "px";
+
+                    console.log(chd.id + " merged into " + targ.id);
+
+                    this.nodes[chd.numericID()] = undefined;
+                    node.children[i]            = undefined;
+                }
+
+                done = true;
+                return true;
+            } else {
+                return this.collide_(targ, chd, done);
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Recursively checks for collisions and merges colliding bodies.
      * @param {QTNode} node The node to recurse on.
      * @returns If the quadtree was modified.
      */
     collide(node)
     {
-        let paLeaf = true;
-
-        for (var chd of node.children)
-            if (chd != undefined && !chd.isLeaf())
-                paLeaf = false;
-
-        if (paLeaf) {
-            let ret = false;
-
-            for (var i = 0; i < 4; ++i) {
-                let n1 = node.children[i];
-
-                if (n1 == undefined)
-                    continue;
-
-                for (var j = i + 1; j < 4; ++j) {
-                    let n2 = node.children[j];
-
-                    if (n2 == undefined)
-                        continue;
-
-                    const n1Elem = document.getElementById(n1.id);
-                    const n2Elem = document.getElementById(n2.id);
-
-                    if (this.#checkCollision(n1, n2)) {
-                        if (n1Elem != null)
-                            n1Elem.remove();
-
-                        n2.totalMass += n1.totalMass;
-                        n2.force = n2.force.sum(n1.force);
-                        n2Elem.style.width
-                            = (Math.cbrt(n2.totalMass) * 10) + "px";
-                        n2Elem.style.height
-                            = (Math.cbrt(n2.totalMass) * 10) + "px";
-
-                        console.log(n1.id + " merged into " + n2.id);
-
-                        node.children[i]           = undefined;
-                        this.nodes[n1.numericID()] = undefined;
-
-                        ret = true;
-                        continue;
-                    } else if (this.#checkCollision(n2, n1)) {
-                        if (n2Elem != null)
-                            n2Elem.remove();
-
-                        n1.totalMass += n2.totalMass;
-                        n1.force = n1.force.sum(n2.force);
-                        n1Elem.style.width
-                            = (Math.cbrt(n1.totalMass) * 10) + "px";
-                        n1Elem.style.height
-                            = (Math.cbrt(n1.totalMass) * 10) + "px";
-
-                        console.log(n2.id + " merged into " + n1.id);
-
-                        node.children[j]           = undefined;
-                        this.nodes[n2.numericID()] = undefined;
-
-                        ret = true;
-                        continue;
-                    }
-                }
-            }
-
-            return ret;
-        }
+        let ret = false;
 
         for (var chd of node.children) {
-            if (chd != undefined && !chd.isLeaf()) {
-                return this.collide(chd);
-            }
+            if (chd == undefined)
+                continue;
+
+            if (chd.isLeaf())
+                ret = ret ? this.collide_(chd, node, false) : true;
+            else
+                this.collide(chd);
         }
+
+        return ret;
     }
 
     /**

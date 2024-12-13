@@ -3,6 +3,7 @@ const thetaSlider   = document.getElementById("slider_theta");
 const massSlider    = document.getElementById("slider_mass");
 const curmassSlider = document.getElementById("slider_curmass");
 const gSlider       = document.getElementById("slider_G");
+const fpsSlider     = document.getElementById("slider_fps");
 const vxSlider      = document.getElementById("slider_vx");
 const vySlider      = document.getElementById("slider_vy");
 
@@ -11,6 +12,7 @@ const thetaSliderVal   = document.getElementById("slider_theta_val");
 const massSliderVal    = document.getElementById("slider_mass_val");
 const curmassSliderVal = document.getElementById("slider_curmass_val");
 const gSliderVal       = document.getElementById("slider_G_val");
+const fpsSliderVal     = document.getElementById("slider_fps_val");
 const vxSliderVal      = document.getElementById("slider_vx_val");
 const vySliderVal      = document.getElementById("slider_vy_val");
 

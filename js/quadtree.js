@@ -60,9 +60,6 @@ class Vec extends Point
     sum(v) { return new Vec (this.x + v.x, this.y + v.y); }
 }
 
-/** The maximum allowed velocity for each body. */
-const maxVelocity = 10;
-
 class QTNode
 {
     /**
@@ -173,10 +170,6 @@ class QTNode
 
         let a = this.accel();
         a.scale(t);
-
-        if (a.norm() > maxVelocity)
-            a.normalize(maxVelocity);
-
         return a;
     }
 }

@@ -1,4 +1,4 @@
-const FPS           = 30;
+let   fps           = 30;
 const samplesPerSec = 20;
 
 let cnt = 0;
@@ -139,7 +139,7 @@ function runSim ()
             const id = parseInt (node.id.slice(4));
             svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (id));
 
-            if (frame % (FPS / samplesPerSec) == 0) {
+            if (frame % (fps / samplesPerSec) == 0) {
                 const curpath = document.getElementById("path" + id);
                 const pathstr = curpath.getAttribute("d");
                 const offset  = Math.cbrt(node.totalMass) * 5;
@@ -168,7 +168,7 @@ function toggleRun ()
         hitbox.style.pointerEvents        = "auto";
         bodyContainer.style.pointerEvents = "auto";
     } else {
-        iid                 = setInterval (runSim, 1000 / FPS);
+        iid                 = setInterval (runSim, 1000 / fps);
         runButton.innerText = "Stop";
         running             = true;
 
@@ -176,6 +176,12 @@ function toggleRun ()
         bodyContainer.style.pointerEvents = "none";
     }
 }
+
+fpsSlider.oninput = function () {
+    fpsSliderVal.innerText = this.value;
+    clearInterval (iid);
+    iid = setInterval (runSim, 1000 / (fps = parseInt (this.value)));
+};
 
 /** Resets the simulation by clearing the display. */
 function reset ()

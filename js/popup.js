@@ -93,23 +93,21 @@ let editingPos = false;
  * @param {KeyboardEvent} e An HTML keyboard event. Triggers the function if
  *     the escape key is pressed.
  */
-function hidePopup (e)
+function hidePopup ()
 {
-    if (e == undefined || e.key == "Escape") {
-        popup.style.visibility = "hidden";
+    popup.style.visibility = "hidden";
 
-        if (curElem != null) {
-            curElem.classList.remove("selected");
-            curElem = null;
+    if (curElem != null) {
+        curElem.classList.remove("selected");
+        curElem = null;
 
-            editingPos                     = false;
-            dragHitbox.style.pointerEvents = "none";
+        editingPos                     = false;
+        dragHitbox.style.pointerEvents = "none";
 
-            popupMove.style.display   = "none";
-            popupNormal.style.display = "flex";
-            editPosButton.innerText   = "Edit Position";
-            svgArrows.style.display   = prevVecDsp;
-        }
+        popupMove.style.display   = "none";
+        popupNormal.style.display = "flex";
+        editPosButton.innerText   = "Edit Position";
+        svgArrows.style.display   = prevVecDsp;
     }
 }
 
@@ -267,5 +265,3 @@ hitbox.onmousedown = (e) => {
 };
 
 hitbox.onmouseup = () => { draggingArrow = false; };
-
-document.addEventListener("keydown", hidePopup);

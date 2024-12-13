@@ -179,8 +179,12 @@ function toggleRun ()
 
 fpsSlider.oninput = function () {
     fpsSliderVal.innerText = this.value;
-    clearInterval (iid);
-    iid = setInterval (runSim, 1000 / (fps = parseInt (this.value)));
+    fps                    = parseInt (this.value);
+
+    if (running) {
+        clearInterval (iid);
+        iid = setInterval (runSim, 1000 / fps);
+    }
 };
 
 /** Resets the simulation by clearing the display. */
@@ -198,10 +202,27 @@ function reset ()
 
 hitbox.addEventListener("click", addBody);
 
-vecToggle.addEventListener("change", (e) => {
+vecToggle.onchange = (e) => {
     svgArrows.style.display = e.currentTarget.checked ? "block" : "none";
-})
+};
 
-pathToggle.addEventListener("change", (e) => {
+pathToggle.onchange = (e) => {
     svgPaths.style.display = e.currentTarget.checked ? "block" : "none";
-})
+};
+
+// keybinds
+document.onkeydown = (e) => {
+    switch (e.key) {
+    case " ":
+        if (popup.style.visibility == "hidden")
+            toggleRun ();
+        break;
+    case "Escape":
+        hidePopup ();
+        break;
+    case "Backspace":
+        if (popup.style.visibility == "visible")
+            deleteBody ();
+        break;
+    }
+};

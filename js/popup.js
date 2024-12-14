@@ -54,6 +54,9 @@ curmassSlider.oninput = function () {
 /** The amount to scale the velocity vector in the display */
 const mfac = 32;
 
+/** The maximum velocity that can be attained with the slider */
+const lim = 10 * mfac;
+
 vxSlider.oninput = function () {
     const vxVal           = parseFloat (vxSlider.value);
     vxSliderVal.innerText = vxVal.toFixed(1);
@@ -179,13 +182,21 @@ function bodyDrag (e)
 {
     if (draggingBody) {
         const id           = parseInt (curElem.id.slice(4));
-        const offset       = Math.cbrt(qt.nodes[id].totalMass) * 5;
+        const mass         = qt.nodes[id].totalMass;
+        const offset       = Math.cbrt(mass) * 5;
         const x            = e.pageX - offset;
         const y            = e.pageY - offset;
         qt.nodes[id].com.x = x;
         qt.nodes[id].com.y = y;
         curElem.style.left = x + "px";
         curElem.style.top  = y + "px";
+
+        const vx = Math.min(lim, Math.max(-lim, qt.nodes[id].force.x / mass));
+        const vy = Math.min(lim, Math.max(-lim, qt.nodes[id].force.y / mass));
+        document.getElementById("arrow_line" + id)
+            .setAttribute("d", `M${x + offset},${y + offset} L${
+                                   x + mfac * vx
+                                   + offset},${y + mfac * vy + offset}`);
     }
 }
 
@@ -237,12 +248,11 @@ function mouseDrag (e)
         const offset = Math.cbrt(node.totalMass) * 5;
         const x      = node.com.x + offset;
         const y      = node.com.y + offset;
-        const lim    = 5 * mfac;
         const vx     = Math.min(lim, Math.max(-lim, e.pageX - x));
         const vy     = Math.min(lim, Math.max(-lim, e.pageY - y));
 
         vxSliderVal.innerText = vxSlider.value = (vx / mfac).toFixed(1);
-        vySliderVal.innerText = vySlider.value = (vy / mfac).toFixed(1);
+        vySliderVal.innerText = vySlider.value = (-vy / mfac).toFixed(1);
 
         qt.nodes[id].force.x = vx * qt.nodes[id].totalMass / mfac;
         qt.nodes[id].force.y = vy * qt.nodes[id].totalMass / mfac;

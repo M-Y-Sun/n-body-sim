@@ -41,7 +41,7 @@ function _getSVGArrowHTML (idx)
     const node   = qt.nodes[idx];
     const vx     = node.force.x / node.totalMass;
     const vy     = node.force.y / node.totalMass;
-    const offset = Math.cbrt(node.totalMass) * 5; // width / 2
+    const offset = Math.cbrt(node.totalMass) * 5;
 
     return `
 <defs>
@@ -208,21 +208,4 @@ vecToggle.onchange = (e) => {
 
 pathToggle.onchange = (e) => {
     svgPaths.style.display = e.currentTarget.checked ? "block" : "none";
-};
-
-// keybinds
-document.onkeydown = (e) => {
-    switch (e.key) {
-    case " ":
-        if (popup.style.visibility == "hidden")
-            toggleRun ();
-        break;
-    case "Escape":
-        hidePopup ();
-        break;
-    case "Backspace":
-        if (popup.style.visibility == "visible")
-            deleteBody ();
-        break;
-    }
 };

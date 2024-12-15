@@ -21,6 +21,7 @@ const runButton = document.getElementById("but_run");
 const popup       = document.getElementById("popup");
 const popupNormal = document.getElementById("popup_normal");
 const popupMove   = document.getElementById("popup_move");
+const dragBar     = document.getElementById("dragbar");
 
 const editPosButton = document.getElementById("but_edit_pos");
 
@@ -29,7 +30,6 @@ const svgPaths  = document.getElementById("svg_paths");
 
 const bodyContainer = document.getElementById("body_container");
 const hitbox        = document.getElementById("hitbox");
-const dragHitbox    = document.getElementById("drag_hitbox");
 
 const vecToggle  = document.getElementById("toggle_vec");
 const pathToggle = document.getElementById("toggle_path");

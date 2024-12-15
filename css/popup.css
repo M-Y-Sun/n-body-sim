@@ -2,6 +2,8 @@
     /* visibility: hidden is set in index.html so javascript can detect it */
 
     display: flex;
+    align-items: center;
+    justify-content: center;
     flex-direction: column;
 
     position: fixed;
@@ -42,4 +44,15 @@ div.button_container button {
 
 #popup_move p {
     margin: 0 5px;
+}
+
+#dragbar {
+    display: block;
+
+    /* height doesn't set if theres no !important */
+    height: 10px !important;
+    width: 100px;
+
+    border-radius: 10px;
+    background-color: #888888;
 }

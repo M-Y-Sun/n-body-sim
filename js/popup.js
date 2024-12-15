@@ -91,6 +91,21 @@ vySlider.oninput = function () {
 
 let editingPos = false;
 
+function resetPopup ()
+{
+    if (curElem != null) {
+        curElem.classList.remove("selected");
+
+        editingPos           = false;
+        document.onmousemove = undefined;
+
+        popupMove.style.display   = "none";
+        popupNormal.style.display = "flex";
+        editPosButton.innerText   = "Edit Position";
+        svgArrows.style.display   = prevVecDsp;
+    }
+}
+
 /**
  * Hides the popup and resets it for the next selection
  * @param {KeyboardEvent} e An HTML keyboard event. Triggers the function if
@@ -99,19 +114,8 @@ let editingPos = false;
 function hidePopup ()
 {
     popup.style.visibility = "hidden";
-
-    if (curElem != null) {
-        curElem.classList.remove("selected");
-        curElem = null;
-
-        editingPos                     = false;
-        dragHitbox.style.pointerEvents = "none";
-
-        popupMove.style.display   = "none";
-        popupNormal.style.display = "flex";
-        editPosButton.innerText   = "Edit Position";
-        svgArrows.style.display   = prevVecDsp;
-    }
+    resetPopup ();
+    curElem = null;
 }
 
 /** Deletes a body. */
@@ -121,14 +125,9 @@ function deleteBody ()
     qt.nodes[id] = undefined;
 
     popup.style.visibility = "hidden";
+    resetPopup ();
 
-    editingPos                     = false;
-    dragHitbox.style.pointerEvents = "none";
-
-    curElem.classList.remove("selected");
     curElem.remove();
-    curElem = null;
-
     document.getElementById("arrow_line" + id).remove();
     document.getElementById("arrow_head" + id).remove();
     document.getElementById("path" + id).remove();
@@ -138,13 +137,11 @@ function deleteBody ()
 editPosButton.onclick = () => {
     if (editingPos) {
         editingPos = false;
-        dragHitbox.style.pointerEvents = "none";
         popupMove.style.display = "none";
         popupNormal.style.display = "flex";
         editPosButton.innerText = "Edit Position";
     } else {
         editingPos = true;
-        dragHitbox.style.pointerEvents = "auto";
         popupMove.style.display = "flex";
         popupNormal.style.display = "none";
         editPosButton.innerText = "Finish";
@@ -159,6 +156,27 @@ function bodyStartDrag ()
     if (popup.style.visibility == "visible" && editingPos) {
         draggingBody               = true;
         document.body.style.cursor = "grabbing";
+
+        document.onmousemove = (e) => {
+            const id           = parseInt (curElem.id.slice(4));
+            const mass         = qt.nodes[id].totalMass;
+            const offset       = Math.cbrt(mass) * 5;
+            const x            = e.pageX - offset;
+            const y            = e.pageY - offset;
+            qt.nodes[id].com.x = x;
+            qt.nodes[id].com.y = y;
+            curElem.style.left = x + "px";
+            curElem.style.top  = y + "px";
+
+            const vx
+                = Math.min(lim, Math.max(-lim, qt.nodes[id].force.x / mass));
+            const vy
+                = Math.min(lim, Math.max(-lim, qt.nodes[id].force.y / mass));
+            document.getElementById("arrow_line" + id)
+                .setAttribute("d", `M${x + offset},${y + offset} L${
+                                       x + mfac * vx
+                                       + offset},${y + mfac * vy + offset}`);
+        }
     }
 }
 
@@ -170,37 +188,9 @@ function bodyEndDrag (elem)
     } else {
         draggingBody               = false;
         document.body.style.cursor = "grab";
+        document.onmousemove       = undefined;
     }
 }
-
-/**
- * Updates the position of the selected body when it is being moved.
- * @param {PointerEvent} e An HTML pointer event to track the position of the
- *     mouse.
- */
-function bodyDrag (e)
-{
-    if (draggingBody) {
-        const id           = parseInt (curElem.id.slice(4));
-        const mass         = qt.nodes[id].totalMass;
-        const offset       = Math.cbrt(mass) * 5;
-        const x            = e.pageX - offset;
-        const y            = e.pageY - offset;
-        qt.nodes[id].com.x = x;
-        qt.nodes[id].com.y = y;
-        curElem.style.left = x + "px";
-        curElem.style.top  = y + "px";
-
-        const vx = Math.min(lim, Math.max(-lim, qt.nodes[id].force.x / mass));
-        const vy = Math.min(lim, Math.max(-lim, qt.nodes[id].force.y / mass));
-        document.getElementById("arrow_line" + id)
-            .setAttribute("d", `M${x + offset},${y + offset} L${
-                                   x + mfac * vx
-                                   + offset},${y + mfac * vy + offset}`);
-    }
-}
-
-dragHitbox.addEventListener("mousemove", bodyDrag);
 
 /** Changes the cursor to grab when hovering over a body in move body mode. */
 function bodyOnHover ()
@@ -242,36 +232,52 @@ function togglePopup (elem)
  */
 function mouseDrag (e)
 {
-    if (draggingArrow) {
-        const id     = parseInt (curElem.id.slice(4));
-        const node   = qt.nodes[id];
-        const offset = Math.cbrt(node.totalMass) * 5;
-        const x      = node.com.x + offset;
-        const y      = node.com.y + offset;
-        const vx     = Math.min(lim, Math.max(-lim, e.pageX - x));
-        const vy     = Math.min(lim, Math.max(-lim, e.pageY - y));
+    const id     = parseInt (curElem.id.slice(4));
+    const node   = qt.nodes[id];
+    const offset = Math.cbrt(node.totalMass) * 5;
+    const x      = node.com.x + offset;
+    const y      = node.com.y + offset;
+    const vx     = Math.min(lim, Math.max(-lim, e.pageX - x));
+    const vy     = Math.min(lim, Math.max(-lim, e.pageY - y));
 
-        vxSliderVal.innerText = vxSlider.value = (vx / mfac).toFixed(1);
-        vySliderVal.innerText = vySlider.value = (-vy / mfac).toFixed(1);
+    vxSliderVal.innerText = vxSlider.value = (vx / mfac).toFixed(1);
+    vySliderVal.innerText = vySlider.value = (-vy / mfac).toFixed(1);
 
-        qt.nodes[id].force.x = vx * qt.nodes[id].totalMass / mfac;
-        qt.nodes[id].force.y = vy * qt.nodes[id].totalMass / mfac;
+    qt.nodes[id].force.x = vx * qt.nodes[id].totalMass / mfac;
+    qt.nodes[id].force.y = vy * qt.nodes[id].totalMass / mfac;
 
-        document.getElementById("arrow_line" + id)
-            .setAttribute("d", `M${x},${y} L${x + vx},${y + vy}`);
-    }
+    document.getElementById("arrow_line" + id)
+        .setAttribute("d", `M${x},${y} L${x + vx},${y + vy}`);
 }
-
-let draggingArrow = false;
-
-hitbox.addEventListener("mousemove", mouseDrag);
 
 // Starts the arrow dragging
 hitbox.onmousedown = (e) => {
     if (popup.style.visibility == "visible") {
-        draggingArrow = true;
+        document.onmousemove = (ev) => { mouseDrag (ev); };
         mouseDrag (e);
     }
 };
 
-hitbox.onmouseup = () => { draggingArrow = false; };
+hitbox.onmouseup = () => { document.onmousemove = undefined; };
+
+let posx, posy;
+
+dragBar.onmouseover = () => { document.body.style.cursor = "move"; };
+dragBar.onmouseout = () => { document.body.style.cursor = "default"; };
+
+dragBar.onmousedown = (e) => {
+    posx = e.pageX;
+    posy = e.pageY;
+
+    document.onmousemove = (ev) => {
+        popup.style.bottom
+            = (parseFloat (popup.style.bottom) + (posy - ev.pageY)) + "px";
+        popup.style.right
+            = (parseFloat (popup.style.right) + (posx - ev.pageX)) + "px";
+
+        posx = ev.pageX;
+        posy = ev.pageY;
+    }
+};
+
+dragBar.onmouseup = () => { document.onmousemove = undefined; };

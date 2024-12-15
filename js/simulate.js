@@ -22,7 +22,6 @@ function _getBodyHTML (sz, x, y)
     top: ${y - sz / 2}px;
   "
   onmousedown="bodyStartDrag();"
-  onmousemove="bodyDrag(event);"
   onmouseup="bodyEndDrag(this);"
   onmouseover="bodyOnHover();"
   onmouseout="bodyLeaveHover();"
@@ -31,8 +30,8 @@ function _getBodyHTML (sz, x, y)
 }
 
 /**
- * Code of <defs> element for the arrow head by Cagri Tacyildiz and Bumhan Yu
- * from https://stackoverflow.com/a/60714330.
+ * Code of <marker> element for the arrow head inspired by Cagri Tacyildiz and
+ * Bumhan Yu from https://stackoverflow.com/a/60714330.
  * @param {number} idx The index.
  * @returns HTML that goes inside an SVG element representing an arrow.
  */

@@ -10,7 +10,9 @@ happen in $O(N)$.
 ---
 
 The app uses Newton's law of universal gravitation
-$$ F = G\frac{m_1m_2}{r^2} $$
+
+$$F = G\frac{m_1m_2}{r^2}$$
+
 to calculate the net force vector acting on each body every frame and updates their velocities accordingly.
 
 To add bodies to the simulation, click the black part of the screen on the right.
@@ -19,6 +21,7 @@ The "Reset" button will remove all bodies and clear the display.
 
 The sliders on the sidebar on the left adjusts various aspects of the simulation.
 Notably, _lowering the accuracy value will result in a more accurate simulation_, at the cost of the algorithm running closer to $O(N^2)$.
+Higher accuracy will cause the movements of the bodies to be jerky and imprecise.
 
 The visibility force vectors and/or paths traced by each body can be toggled.
 

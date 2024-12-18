@@ -18,6 +18,8 @@ const vySliderVal      = document.getElementById("slider_vy_val");
 
 const runButton = document.getElementById("but_run");
 
+const alertPopup = document.getElementById("alert");
+
 const popup       = document.getElementById("popup");
 const popupNormal = document.getElementById("popup_normal");
 const popupMove   = document.getElementById("popup_move");

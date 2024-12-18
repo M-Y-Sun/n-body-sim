@@ -56,3 +56,42 @@ div.button_container button {
     border-radius: 10px;
     background-color: #888888;
 }
+
+
+#alert {
+    background-color: #cccccc;
+
+    position: fixed;
+    top: 0;
+    left: 50%;
+
+    margin-top: 50px;
+    padding: 10px 20px;
+    border-radius: 8px;
+
+    opacity: 0;
+}
+
+/* Animation keyframes from Martin on StackOverflow from https://stackoverflow.com/a/59625723 */
+
+.fade {
+    animation: fade ease 4s;
+}
+
+@keyframes fade {
+    0% {
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}

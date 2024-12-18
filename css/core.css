@@ -20,6 +20,7 @@ body {
 }
 
 p,
+span,
 label {
     font-size: var(--fontsize);
 }

@@ -1,5 +1,4 @@
 let fps = 30;
-
 let cnt = 0;
 
 /**
@@ -95,27 +94,6 @@ massSlider.oninput = function () {
     nodesz                  = Math.cbrt(parseInt (this.value)) * 10;
 };
 
-/**
- * Adds a body to the display.
- */
-hitbox.onclick = (e) => {
-    if (popup.style.visibility == "hidden") {
-        if (!qt.addBody(e.pageX - nodesz / 2, e.pageY - nodesz / 2,
-                        parseInt (massSlider.value), new Vec (0, 0),
-                        "body" + cnt))
-            return;
-
-        bodyContainer.insertAdjacentHTML(
-            "beforeend", _getBodyHTML (nodesz, e.pageX, e.pageY));
-        svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (cnt));
-        svgPaths.insertAdjacentHTML("beforeend", _getSVGPathHTML (cnt));
-
-        console.log(qt);
-
-        ++cnt;
-    }
-}
-
 /** Runs the simulation and updates SVG graphics accordingly. */
 function runSim ()
 {
@@ -143,8 +121,40 @@ function runSim ()
     }
 }
 
-
 let running = false;
+
+/** Adds a body to the display. */
+hitbox.onclick = (e) => {
+    if (popup.style.visibility == "hidden") {
+        if (running) {
+            if (alertPopup.classList.contains("fade"))
+                alertPopup.classList.remove("fade");
+
+            // animation won't re-render if we don't call window.requestAnimationFrame
+            // source: KevBot on StackOverflow from https://stackoverflow.com/a/45575328
+            window.requestAnimationFrame(function () {
+                alertPopup.classList.add("fade");
+            });
+
+            return;
+        }
+
+        if (!qt.addBody(e.pageX - nodesz / 2, e.pageY - nodesz / 2,
+                        parseInt (massSlider.value), new Vec (0, 0),
+                        "body" + cnt))
+            return;
+
+        bodyContainer.insertAdjacentHTML(
+            "beforeend", _getBodyHTML (nodesz, e.pageX, e.pageY));
+        svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (cnt));
+        svgPaths.insertAdjacentHTML("beforeend", _getSVGPathHTML (cnt));
+
+        console.log(qt);
+
+        ++cnt;
+    }
+}
+
 let iid = -1;
 
 /** Toggles the run button. */
@@ -155,14 +165,12 @@ function toggleRun ()
         runButton.innerText = "Run";
         running             = false;
 
-        hitbox.style.pointerEvents        = "auto";
         bodyContainer.style.pointerEvents = "auto";
     } else {
         iid                 = setInterval (runSim, 1000 / fps);
         runButton.innerText = "Stop";
         running             = true;
 
-        hitbox.style.pointerEvents        = "none";
         bodyContainer.style.pointerEvents = "none";
     }
 }

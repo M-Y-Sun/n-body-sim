@@ -27,9 +27,12 @@ function showPopup (elem)
     vySliderVal.innerText = vySlider.value
         = (-qt.nodes[id].force.y / m).toFixed(1);
 
+    // if clicking from one selected body to another, don't update
+    if (popup.style.visibility == "hidden")
+        prevVecDsp = svgArrows.style.display;
+
     popup.style.visibility = "visible";
     elem.classList.add("selected");
-    prevVecDsp              = svgArrows.style.display;
     svgArrows.style.display = "block";
 }
 

@@ -1,5 +1,4 @@
-let   fps           = 30;
-const samplesPerSec = 20;
+let fps = 30;
 
 let cnt = 0;
 
@@ -97,11 +96,9 @@ massSlider.oninput = function () {
 };
 
 /**
- * Adds a body to the display
- * @param {PointerEvent} e An HTML pointer event to detect the mouse position
+ * Adds a body to the display.
  */
-function addBody (e)
-{
+hitbox.onclick = (e) => {
     if (popup.style.visibility == "hidden") {
         if (!qt.addBody(e.pageX - nodesz / 2, e.pageY - nodesz / 2,
                         parseInt (massSlider.value), new Vec (0, 0),
@@ -119,9 +116,6 @@ function addBody (e)
     }
 }
 
-/** Frame counter mod 256 to have a unique samples per second and fps */
-let frame = 0;
-
 /** Runs the simulation and updates SVG graphics accordingly. */
 function runSim ()
 {
@@ -138,23 +132,20 @@ function runSim ()
             const id = parseInt (node.id.slice(4));
             svgArrows.insertAdjacentHTML("beforeend", _getSVGArrowHTML (id));
 
-            if (frame % (fps / samplesPerSec) == 0) {
-                const curpath = document.getElementById("path" + id);
-                const pathstr = curpath.getAttribute("d");
-                const offset  = Math.cbrt(node.totalMass) * 5;
-                curpath.setAttribute(
-                    "d",
-                    pathstr
-                        + ` L${node.com.x + offset},${node.com.y + offset}`);
-            }
+            const curpath = document.getElementById("path" + id);
+            const pathstr = curpath.getAttribute("d");
+            const offset  = Math.cbrt(node.totalMass) * 5;
+
+            curpath.setAttribute(
+                "d",
+                pathstr + ` L${node.com.x + offset},${node.com.y + offset}`);
         }
     }
-
-    frame = (frame + 1) % 256;
 }
 
+
 let running = false;
-let iid     = -1;
+let iid = -1;
 
 /** Toggles the run button. */
 function toggleRun ()
@@ -198,8 +189,6 @@ function reset ()
     running = true;
     toggleRun ();
 }
-
-hitbox.addEventListener("click", addBody);
 
 vecToggle.onchange = (e) => {
     svgArrows.style.display = e.currentTarget.checked ? "block" : "none";
